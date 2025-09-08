@@ -12,5 +12,10 @@ urlpatterns = [
         'texts/<int:pk>/',
         views.TextRetrieveUpdateDestroyView.as_view(),
         name='text-detail-view',
+    ),
+    path(
+        'webhook/approval/',
+        views.webhook_update_approval,
+        name='webhook-approval',
     )
 ]

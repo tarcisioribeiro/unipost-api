@@ -36,7 +36,7 @@ class Text(models.Model):
         auto_now=True,
         verbose_name="Atualizado em"
     )
-    is_aproved = models.BooleanField(
+    is_approved = models.BooleanField(
         verbose_name='Aprovado',
         default=False
     )
