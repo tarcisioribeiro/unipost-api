@@ -1,0 +1,521 @@
+{
+  "api": {
+    "name": "UniPost API",
+    "version": "1.0.0",
+    "description": "API RESTful para gerenciamento de textos para redes sociais",
+    "base_url": "http://localhost:8005/api/v1",
+    "authentication": "JWT Bearer Token"
+  },
+  "endpoints": {
+    "authentication": {
+      "login": {
+        "method": "POST",
+        "url": "/authentication/token/",
+        "description": "Obter token JWT para autenticação",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "username": "string (required) - Nome do usuário",
+          "password": "string (required) - Senha do usuário"
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido",
+            "body": {
+              "access": "string - Token de acesso JWT",
+              "refresh": "string - Token de refresh JWT"
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      },
+      "refresh_token": {
+        "method": "POST",
+        "url": "/authentication/token/refresh/",
+        "description": "Renovar token JWT usando refresh token",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "refresh": "string (required) - Token de refresh JWT"
+        },
+        "responses": {
+          "200": {
+            "description": "Token renovado com sucesso",
+            "body": {
+              "access": "string - Novo token de acesso JWT"
+            }
+          },
+          "401": {
+            "description": "Refresh token inválido",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      },
+      "verify_token": {
+        "method": "POST",
+        "url": "/authentication/token/verify/",
+        "description": "Verificar se token JWT é válido",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "token": "string (required) - Token JWT para verificação"
+        },
+        "responses": {
+          "200": {
+            "description": "Token válido",
+            "body": {}
+          },
+          "401": {
+            "description": "Token inválido ou expirado",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      },
+      "logout": {
+        "method": "POST",
+        "url": "/authentication/logout/",
+        "description": "Fazer logout do usuário (invalidar token)",
+        "headers": {
+          "Authorization": "Bearer {access_token}",
+          "Content-Type": "application/json"
+        },
+        "authentication": "required",
+        "responses": {
+          "200": {
+            "description": "Logout realizado com sucesso",
+            "body": {
+              "detail": "string - Mensagem de confirmação"
+            }
+          },
+          "401": {
+            "description": "Token inválido ou não fornecido",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      },
+      "user_permissions": {
+        "method": "GET",
+        "url": "/user/permissions/",
+        "description": "Obter permissões do usuário autenticado",
+        "headers": {
+          "Authorization": "Bearer {access_token}"
+        },
+        "authentication": "required",
+        "responses": {
+          "200": {
+            "description": "Permissões do usuário",
+            "body": {
+              "username": "string - Nome do usuário",
+              "permissions": "array - Lista de permissões",
+              "is_staff": "boolean - Se é usuário staff",
+              "is_superuser": "boolean - Se é superusuário"
+            }
+          },
+          "401": {
+            "description": "Token inválido ou não fornecido",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          },
+          "403": {
+            "description": "Superusuários não podem acessar esta interface",
+            "body": {
+              "error": "string - Mensagem de erro"
+            }
+          }
+        }
+      }
+    },
+    "texts": {
+      "list_create": {
+        "method": "GET / POST",
+        "url": "/texts/",
+        "description": "Listar todos os textos (GET) ou criar um novo texto (POST)",
+        "headers": {
+          "Authorization": "Bearer {access_token}",
+          "Content-Type": "application/json (apenas para POST)"
+        },
+        "authentication": "required",
+        "permissions": "texts.view_text (GET), texts.add_text (POST)",
+        "get_responses": {
+          "200": {
+            "description": "Lista de textos",
+            "body": {
+              "count": "integer - Número total de textos",
+              "next": "string|null - URL da próxima página",
+              "previous": "string|null - URL da página anterior",
+              "results": [
+                {
+                  "id": "integer - ID do texto",
+                  "theme": "string - Tema do texto",
+                  "platform": "string - Plataforma (FCB, INT, TTK, LKN)",
+                  "content": "string - Conteúdo do texto",
+                  "created_at": "datetime - Data de criação",
+                  "updated_at": "datetime - Data de atualização",
+                  "is_aproved": "boolean - Status de aprovação"
+                }
+              ]
+            }
+          }
+        },
+        "post_body": {
+          "theme": "string (required) - Tema do texto (max 200 chars)",
+          "platform": "string (required) - Plataforma: FCB (Facebook), INT (Instagram), TTK (TikTok), LKN (LinkedIn)",
+          "content": "string (required) - Conteúdo do texto",
+          "is_aproved": "boolean (optional, default: false) - Status de aprovação"
+        },
+        "post_responses": {
+          "201": {
+            "description": "Texto criado com sucesso",
+            "body": {
+              "id": "integer - ID do novo texto",
+              "theme": "string - Tema do texto",
+              "platform": "string - Plataforma",
+              "content": "string - Conteúdo do texto",
+              "created_at": "datetime - Data de criação",
+              "updated_at": "datetime - Data de atualização",
+              "is_aproved": "boolean - Status de aprovação"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "body": {
+              "field_name": [
+                "string - Mensagem de erro específica do campo"
+              ]
+            }
+          }
+        },
+        "common_responses": {
+          "401": {
+            "description": "Token inválido ou não fornecido",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          },
+          "403": {
+            "description": "Sem permissão para acessar este recurso",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      },
+      "retrieve_update_destroy": {
+        "method": "GET / PUT / PATCH / DELETE",
+        "url": "/texts/{id}/",
+        "description": "Visualizar (GET), atualizar (PUT/PATCH) ou deletar (DELETE) um texto específico",
+        "url_params": {
+          "id": "integer (required) - ID do texto"
+        },
+        "headers": {
+          "Authorization": "Bearer {access_token}",
+          "Content-Type": "application/json (apenas para PUT/PATCH)"
+        },
+        "authentication": "required",
+        "permissions": "texts.view_text (GET), texts.change_text (PUT/PATCH), texts.delete_text (DELETE)",
+        "get_responses": {
+          "200": {
+            "description": "Detalhes do texto",
+            "body": {
+              "id": "integer - ID do texto",
+              "theme": "string - Tema do texto",
+              "platform": "string - Plataforma",
+              "content": "string - Conteúdo do texto",
+              "created_at": "datetime - Data de criação",
+              "updated_at": "datetime - Data de atualização",
+              "is_aproved": "boolean - Status de aprovação"
+            }
+          },
+          "404": {
+            "description": "Texto não encontrado",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        },
+        "put_patch_body": {
+          "theme": "string (required for PUT, optional for PATCH) - Tema do texto",
+          "platform": "string (required for PUT, optional for PATCH) - Plataforma",
+          "content": "string (required for PUT, optional for PATCH) - Conteúdo do texto",
+          "is_aproved": "boolean (optional) - Status de aprovação"
+        },
+        "put_patch_responses": {
+          "200": {
+            "description": "Texto atualizado com sucesso",
+            "body": {
+              "id": "integer - ID do texto",
+              "theme": "string - Tema do texto",
+              "platform": "string - Plataforma",
+              "content": "string - Conteúdo do texto",
+              "created_at": "datetime - Data de criação",
+              "updated_at": "datetime - Data de atualização",
+              "is_aproved": "boolean - Status de aprovação"
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "body": {
+              "field_name": [
+                "string - Mensagem de erro específica do campo"
+              ]
+            }
+          },
+          "404": {
+            "description": "Texto não encontrado",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        },
+        "delete_responses": {
+          "204": {
+            "description": "Texto deletado com sucesso",
+            "body": "Sem conteúdo"
+          },
+          "404": {
+            "description": "Texto não encontrado",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        },
+        "common_responses": {
+          "401": {
+            "description": "Token inválido ou não fornecido",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          },
+          "403": {
+            "description": "Sem permissão para acessar este recurso",
+            "body": {
+              "detail": "string - Mensagem de erro"
+            }
+          }
+        }
+      }
+    }
+  },
+  "models": {
+    "Text": {
+      "description": "Modelo para representar textos de redes sociais",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "description": "ID único do texto (auto-gerado)",
+          "primary_key": true,
+          "auto_increment": true
+        },
+        "theme": {
+          "type": "string",
+          "description": "Tema do texto",
+          "max_length": 200,
+          "required": true,
+          "verbose_name": "Tema"
+        },
+        "platform": {
+          "type": "string",
+          "description": "Plataforma de destino do texto",
+          "max_length": 200,
+          "required": true,
+          "verbose_name": "Plataforma",
+          "choices": {
+            "FCB": "Facebook",
+            "INT": "Instagram",
+            "TTK": "TikTok",
+            "LKN": "LinkedIn"
+          }
+        },
+        "content": {
+          "type": "text",
+          "description": "Conteúdo do texto",
+          "required": true,
+          "verbose_name": "Conteúdo"
+        },
+        "created_at": {
+          "type": "datetime",
+          "description": "Data e hora de criação do texto",
+          "auto_now_add": true,
+          "verbose_name": "Criado em"
+        },
+        "updated_at": {
+          "type": "datetime",
+          "description": "Data e hora da última atualização",
+          "auto_now": true,
+          "verbose_name": "Atualizado em"
+        },
+        "is_aproved": {
+          "type": "boolean",
+          "description": "Status de aprovação do texto",
+          "default": false,
+          "verbose_name": "Aprovado"
+        }
+      },
+      "meta": {
+        "ordering": ["-id"],
+        "verbose_name": "Texto",
+        "verbose_name_plural": "Textos"
+      }
+    }
+  },
+  "authentication": {
+    "type": "JWT (JSON Web Token)",
+    "header_name": "Authorization",
+    "header_format": "Bearer {token}",
+    "token_lifetime": {
+      "access_token": "15 minutes",
+      "refresh_token": "1 hour"
+    }
+  },
+  "permissions": {
+    "description": "A API usa o sistema de permissões do Django com uma classe customizada GlobalDefaultPermission",
+    "required_permissions": {
+      "texts.view_text": "Visualizar textos",
+      "texts.add_text": "Criar novos textos",
+      "texts.change_text": "Editar textos existentes",
+      "texts.delete_text": "Deletar textos"
+    },
+    "permission_mapping": {
+      "GET": "view",
+      "POST": "add",
+      "PUT": "change",
+      "PATCH": "change",
+      "DELETE": "delete",
+      "OPTIONS": "view",
+      "HEAD": "view"
+    }
+  },
+  "error_codes": {
+    "200": "OK - Requisição bem-sucedida",
+    "201": "Created - Recurso criado com sucesso",
+    "204": "No Content - Requisição bem-sucedida sem conteúdo de resposta",
+    "400": "Bad Request - Dados inválidos ou formato incorreto",
+    "401": "Unauthorized - Token não fornecido, inválido ou expirado",
+    "403": "Forbidden - Sem permissão para acessar o recurso",
+    "404": "Not Found - Recurso não encontrado",
+    "405": "Method Not Allowed - Método HTTP não permitido para este endpoint",
+    "500": "Internal Server Error - Erro interno do servidor"
+  },
+  "examples": {
+    "authentication_flow": {
+      "step1": {
+        "description": "1. Obter token JWT",
+        "request": {
+          "method": "POST",
+          "url": "/api/v1/authentication/token/",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "username": "meu_usuario",
+            "password": "minha_senha"
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+            "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+          }
+        }
+      },
+      "step2": {
+        "description": "2. Usar token para fazer requisições",
+        "request": {
+          "method": "GET",
+          "url": "/api/v1/texts/",
+          "headers": {
+            "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+          }
+        }
+      }
+    },
+    "create_text": {
+      "description": "Criar um novo texto para Instagram",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/texts/",
+        "headers": {
+          "Authorization": "Bearer {access_token}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "theme": "Promoção de Verão",
+          "platform": "INT",
+          "content": "🌞 Aproveite o verão com 50% de desconto! 🏖️ #verão #promoção #desconto",
+          "is_aproved": false
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": 1,
+          "theme": "Promoção de Verão",
+          "platform": "INT",
+          "content": "🌞 Aproveite o verão com 50% de desconto! 🏖️ #verão #promoção #desconto",
+          "created_at": "2024-01-15T10:30:00Z",
+          "updated_at": "2024-01-15T10:30:00Z",
+          "is_aproved": false
+        }
+      }
+    },
+    "update_text": {
+      "description": "Aprovar um texto existente",
+      "request": {
+        "method": "PATCH",
+        "url": "/api/v1/texts/1/",
+        "headers": {
+          "Authorization": "Bearer {access_token}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "is_aproved": true
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": 1,
+          "theme": "Promoção de Verão",
+          "platform": "INT",
+          "content": "🌞 Aproveite o verão com 50% de desconto! 🏖️ #verão #promoção #desconto",
+          "created_at": "2024-01-15T10:30:00Z",
+          "updated_at": "2024-01-15T11:45:00Z",
+          "is_aproved": true
+        }
+      }
+    }
+  },
+  "common_headers": {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer {access_token}"
+  },
+  "pagination": {
+    "description": "A API usa paginação padrão do Django REST Framework",
+    "response_format": {
+      "count": "integer - Total de registros",
+      "next": "string|null - URL da próxima página",
+      "previous": "string|null - URL da página anterior",
+      "results": "array - Registros da página atual"
+    },
+    "query_parameters": {
+      "page": "integer - Número da página (padrão: 1)",
+      "page_size": "integer - Número de itens por página"
+    }
+  }
+}

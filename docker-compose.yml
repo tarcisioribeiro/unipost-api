@@ -1,0 +1,61 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8005:8005"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./media:/app/media
+      - ./logs:/app/logs
+      - ./static:/app/static
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8005/health/ || wget -q --spider http://localhost:8005/health/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - unipost-network
+    environment:
+      - LOG_FORMAT=json
+
+  db:
+    image: postgres:16.9-alpine
+    environment:
+      POSTGRES_DB: unipost_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=pt_BR.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "5437:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d unipost_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - unipost-network
+
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  unipost-network:
+    driver: bridge
+
