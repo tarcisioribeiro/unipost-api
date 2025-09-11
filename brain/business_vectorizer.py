@@ -8,7 +8,6 @@ Executa via crontab a cada 10 minutos para sincronizar dados corporativos
 import os
 import sys
 import json
-import hashlib
 import logging
 import re
 from typing import List, Dict, Any, Optional
@@ -150,43 +149,22 @@ class BusinessVectorizer:
         except Exception as e:
             logger.error(f"Erro ao salvar timestamp: {e}")
 
-    def generate_content_hash(self, content: str) -> str:
-        """Gera hash único baseado no conteúdo normalizado"""
-        # Normaliza o conteúdo para detectar duplicatas de texto similar
-        normalized = re.sub(r'\s+', ' ', content.lower().strip())
-        return hashlib.sha256(normalized.encode('utf-8')).hexdigest()[:16]
-    
-    def generate_document_hash(self, doc_content: str, doc_id: str, index: str) -> str:
-        """Gera hash único para o documento completo"""
-        # Combina conteúdo + ID + índice para identificar documento único
-        full_content = f"{index}:{doc_id}:{doc_content}"
-        return hashlib.sha256(full_content.encode('utf-8')).hexdigest()[:16]
 
     def search_documents_in_index(
             self,
             index: str,
             last_run: Optional[datetime] = None
     ) -> List[Dict[str, Any]]:
-        """Busca documentos em um índice específico"""
+        """Busca documentos em um índice específico - TODOS os documentos"""
         try:
-            # Query base para buscar todos os documentos
+            # Query para buscar TODOS os documentos (sem filtro de data)
             query = {"match_all": {}}
 
-            # Se há uma última execução, busca apenas documentos modificados
-            if last_run:
-                query = {
-                    "range": {
-                        "@timestamp": {
-                            "gte": last_run.isoformat()
-                        }
-                    }
-                }
-
-            # Busca com scroll para grandes volumes
+            # Busca com scroll para grandes volumes (teste com batch pequeno)
             response = self.es_client.search(
                 index=index,
                 query=query,
-                size=100,  # Tamanho do batch
+                size=5,  # Tamanho muito pequeno para teste
                 scroll='2m',  # Tempo de vida do cursor
                 sort=[{"_score": {"order": "desc"}}]
             )
@@ -194,7 +172,11 @@ class BusinessVectorizer:
             documents = []
             scroll_id = response.get('_scroll_id')
 
+            total_hits = response['hits']['total']['value']
+            logger.info(f"DEBUG: Total hits no ES: {total_hits}")
+            
             # Processa primeira página
+            logger.info(f"DEBUG: Primeira página - {len(response['hits']['hits'])} documentos")
             for hit in response['hits']['hits']:
                 documents.append({
                     'id': hit['_id'],
@@ -204,12 +186,15 @@ class BusinessVectorizer:
                 })
 
             # Continua com scroll se há mais documentos
+            scroll_count = 0
             while scroll_id and len(response['hits']['hits']) > 0:
                 try:
                     response = self.es_client.scroll(
                         scroll_id=scroll_id,
                         scroll='2m'
                     )
+                    scroll_count += 1
+                    logger.info(f"DEBUG: Scroll {scroll_count} - {len(response['hits']['hits'])} documentos")
 
                     for hit in response['hits']['hits']:
                         documents.append({
@@ -231,8 +216,15 @@ class BusinessVectorizer:
                     pass
 
             logger.info(
-                f"Encontrados {len(documents)} documentos no índice {index}"
+                f"COLETADOS {len(documents)} documentos do índice {index} (total ES: {total_hits})"
             )
+            
+            # Debug: mostra amostra dos documentos
+            if len(documents) > 0:
+                logger.info(f"DEBUG: Primeiro documento - ID: {documents[0]['id']}, Campos: {list(documents[0]['source'].keys())}")
+            else:
+                logger.warning(f"DEBUG: NENHUM DOCUMENTO ENCONTRADO DURANTE O SCROLL!")
+            
             return documents
 
         except Exception as e:
@@ -269,31 +261,16 @@ class BusinessVectorizer:
         return text
 
     def extract_text_from_document(self, doc_source: Dict[str, Any]) -> str:
-        """Extrai texto relevante de um documento ElasticSearch"""
-        # Campos comuns que contêm texto
-        text_fields = [
-            'message',
-            'content',
-            'text',
-            'body',
-            'description',
-            'title',
-            'summary',
-            'question',
-            'answer',
-            'info',
-            'data'
-        ]
-
+        """Extrai texto relevante de um documento ElasticSearch - TODOS os campos de texto"""
         extracted_texts = []
 
         def extract_recursive(obj, prefix=''):
             if isinstance(obj, dict):
                 for key, value in obj.items():
                     full_key = f"{prefix}.{key}" if prefix else key
-                    if key.lower() in text_fields and isinstance(value, str):
+                    if isinstance(value, str) and value.strip():
                         cleaned_value = self.clean_text(value)
-                        if cleaned_value and len(cleaned_value) > 5:
+                        if cleaned_value and len(cleaned_value) > 3:  # Limiar menor
                             extracted_texts.append(f"{key}: {cleaned_value}")
                     elif isinstance(value, (dict, list)):
                         extract_recursive(value, full_key)
@@ -301,13 +278,13 @@ class BusinessVectorizer:
                 for item in obj:
                     if isinstance(item, (dict, list)):
                         extract_recursive(item, prefix)
-                    elif isinstance(item, str):
+                    elif isinstance(item, str) and item.strip():
                         cleaned_item = self.clean_text(item)
-                        if cleaned_item and len(cleaned_item) > 5:
+                        if cleaned_item and len(cleaned_item) > 3:
                             extracted_texts.append(cleaned_item)
-            elif isinstance(obj, str) and len(obj) > 10:
+            elif isinstance(obj, str) and obj.strip():
                 cleaned_obj = self.clean_text(obj)
-                if cleaned_obj and len(cleaned_obj) > 5:
+                if cleaned_obj and len(cleaned_obj) > 3:
                     extracted_texts.append(cleaned_obj)
 
         extract_recursive(doc_source)
@@ -317,13 +294,13 @@ class BusinessVectorizer:
 
         # Se não encontrou texto relevante, usa representação JSON limpa
         if not combined_text.strip():
-            json_text = json.dumps(doc_source, ensure_ascii=False)[:2000]
+            json_text = json.dumps(doc_source, ensure_ascii=False)[:5000]
             combined_text = self.clean_text(json_text)
 
         # Aplica limpeza final no texto combinado
         final_text = self.clean_text(combined_text)
         
-        return final_text[:2000]  # Limita tamanho
+        return final_text[:5000]  # Limite maior para mais conteúdo
 
     def generate_embedding(self, text: str) -> Optional[List[float]]:
         """Gera embedding usando Google Gemini"""
@@ -343,51 +320,29 @@ class BusinessVectorizer:
             logger.error(f"Erro ao gerar embedding: {e}")
             return None
 
-    def content_already_exists(self, content_hash: str) -> bool:
-        """Verifica se conteúdo similar já foi processado"""
-        return Embedding.objects.filter(
-            origin='business_brain',
-            metadata__content_hash=content_hash
-        ).exists()
-    
-    def document_already_exists(self, doc_hash: str) -> bool:
-        """Verifica se documento específico já foi processado"""
-        return Embedding.objects.filter(
-            origin='business_brain',
-            metadata__document_hash=doc_hash
-        ).exists()
 
     def process_documents(
             self,
             documents: List[Dict[str, Any]],
             index_name: str
     ) -> int:
-        """Processa documentos e gera embeddings"""
+        """Processa documentos e gera embeddings - SEM deduplicação"""
         processed = 0
 
-        for doc in documents:
+        logger.info(f"INICIANDO PROCESSAMENTO DE {len(documents)} DOCUMENTOS DO ÍNDICE {index_name}")
+
+        for i, doc in enumerate(documents):
             try:
+                logger.info(f"PROCESSANDO DOC {i+1}/{len(documents)} - ID: {doc['id']}")
+                
                 # Extrai texto do documento
                 text_content = self.extract_text_from_document(doc['source'])
+                logger.info(f"TEXTO EXTRAÍDO - Length: {len(text_content)}")
 
                 if not text_content.strip():
                     logger.warning(
-                        f"Documento {doc['id']} sem conteúdo textual"
+                        f"Documento {doc['id']} sem conteúdo textual - pulando"
                     )
-                    continue
-
-                # Gera hashes para detecção de duplicatas
-                content_hash = self.generate_content_hash(text_content)
-                doc_hash = self.generate_document_hash(text_content, doc['id'], index_name)
-
-                # Verifica se conteúdo similar já existe
-                if self.content_already_exists(content_hash):
-                    logger.debug(f"Conteúdo similar já processado para documento {doc['id']}")
-                    continue
-
-                # Verifica se documento específico já foi processado
-                if self.document_already_exists(doc_hash):
-                    logger.debug(f"Documento {doc['id']} já processado")
                     continue
 
                 # Gera embedding
@@ -397,13 +352,11 @@ class BusinessVectorizer:
                     self.error_count += 1
                     continue
 
-                # Prepara metadados
+                # Prepara metadados (sem hashes de deduplicação)
                 metadata = {
                     "elasticsearch_id": doc['id'],
                     "elasticsearch_index": index_name,
                     "elasticsearch_score": doc.get('score', 0),
-                    "document_hash": doc_hash,
-                    "content_hash": content_hash,
                     "source_fields": list(doc['source'].keys()),
                     "processed_at": datetime.now().isoformat(),
                     "text_length": len(text_content),
