@@ -31,13 +31,14 @@ services:
   db:
     image: postgres:16.9-alpine
     environment:
-      POSTGRES_DB: unipost_db
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=pt_BR.UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
       - "5437:5432"
     restart: unless-stopped

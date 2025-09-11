@@ -1,0 +1,1 @@
+# Módulo Brain - Scripts para integração com ElasticSearch

@@ -1,5 +1,5 @@
 from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -24,40 +24,40 @@ class TextRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 def webhook_update_approval(request):
     text_id = request.data.get('id')
     approval_status = request.data.get('status')
-    
+
     if text_id is None:
         return Response(
-            {'error': 'ID do texto é obrigatório'}, 
+            {'error': 'ID do texto é obrigatório'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if approval_status is None:
         return Response(
-            {'error': 'Status é obrigatório'}, 
+            {'error': 'Status é obrigatório'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if not isinstance(approval_status, bool):
         return Response(
-            {'error': 'Status deve ser um valor booleano (true/false)'}, 
+            {'error': 'Status deve ser um valor booleano (true/false)'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         text = get_object_or_404(Text, id=text_id)
         text.is_approved = approval_status
         text.save()
-        
+
         return Response(
             {
                 'message': 'Status de aprovação atualizado com sucesso',
-                'id': text.id,
+                'id': text.id,  # type: ignore
                 'is_approved': text.is_approved
             },
             status=status.HTTP_200_OK
         )
     except Exception as e:
         return Response(
-            {'error': f'Erro interno: {str(e)}'}, 
+            {'error': f'Erro interno: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

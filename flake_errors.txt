@@ -1,0 +1,316 @@
+./brain/__init__.py:1:59: W292 no newline at end of file
+./brain/business_vectorizer.py:31:1: E402 module level import not at top of file
+./brain/business_vectorizer.py:77:80: E501 line too long (124 > 79 characters)
+./brain/business_vectorizer.py:158:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:159:80: E501 line too long (87 > 79 characters)
+./brain/business_vectorizer.py:230:17: E722 do not use bare 'except'
+./brain/business_vectorizer.py:246:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:248:80: E501 line too long (86 > 79 characters)
+./brain/business_vectorizer.py:249:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:252:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:256:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:257:80: E501 line too long (80 > 79 characters)
+./brain/business_vectorizer.py:259:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:262:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:265:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:268:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:325:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:352:1: W293 blank line contains whitespace
+./brain/business_vectorizer.py:381:80: E501 line too long (91 > 79 characters)
+./brain/business_vectorizer.py:385:80: E501 line too long (94 > 79 characters)
+./embeddings/admin.py:11:31: W292 no newline at end of file
+./embeddings/apps.py:6:24: W292 no newline at end of file
+./embeddings/models.py:61:62: W292 no newline at end of file
+./embeddings/serializers.py:18:62: W292 no newline at end of file
+./embeddings/urls.py:16:2: W292 no newline at end of file
+./embeddings/views.py:4:1: F401 'rest_framework.decorators.action' imported but unused
+./embeddings/views.py:19:1: W293 blank line contains whitespace
+./embeddings/views.py:22:1: W293 blank line contains whitespace
+./embeddings/views.py:27:1: W293 blank line contains whitespace
+./embeddings/views.py:31:80: E501 line too long (86 > 79 characters)
+./embeddings/views.py:32:1: W293 blank line contains whitespace
+./embeddings/views.py:36:1: W293 blank line contains whitespace
+./embeddings/views.py:42:80: E501 line too long (94 > 79 characters)
+./embeddings/views.py:43:1: W293 blank line contains whitespace
+./embeddings/views.py:45:1: W293 blank line contains whitespace
+./embeddings/views.py:48:80: E501 line too long (87 > 79 characters)
+./embeddings/views.py:52:1: W293 blank line contains whitespace
+./embeddings/views.py:59:1: W293 blank line contains whitespace
+./embeddings/views.py:65:1: W293 blank line contains whitespace
+./embeddings/views.py:70:1: W293 blank line contains whitespace
+./embeddings/views.py:76:1: W293 blank line contains whitespace
+./embeddings/views.py:83:1: W293 blank line contains whitespace
+./embeddings/views.py:85:1: W293 blank line contains whitespace
+./embeddings/views.py:87:1: W293 blank line contains whitespace
+./embeddings/views.py:88:80: E501 line too long (81 > 79 characters)
+./embeddings/views.py:94:1: W293 blank line contains whitespace
+./embeddings/views.py:97:1: W293 blank line contains whitespace
+./embeddings/views.py:100:1: W293 blank line contains whitespace
+./embeddings/views.py:103:1: W293 blank line contains whitespace
+./embeddings/views.py:106:1: W293 blank line contains whitespace
+./embeddings/views.py:108:80: E501 line too long (82 > 79 characters)
+./embeddings/views.py:109:1: W293 blank line contains whitespace
+./embeddings/views.py:116:1: W293 blank line contains whitespace
+./embeddings/views.py:118:1: W293 blank line contains whitespace
+./embeddings/views.py:124:1: W293 blank line contains whitespace
+./embeddings/views.py:128:80: E501 line too long (91 > 79 characters)
+./embeddings/views.py:135:1: W293 blank line contains whitespace
+./embeddings/views.py:142:1: W293 blank line contains whitespace
+./embeddings/views.py:145:1: W293 blank line contains whitespace
+./embeddings/views.py:148:1: W293 blank line contains whitespace
+./embeddings/views.py:150:80: E501 line too long (80 > 79 characters)
+./embeddings/views.py:151:80: E501 line too long (84 > 79 characters)
+./embeddings/views.py:153:1: W293 blank line contains whitespace
+./embeddings/views.py:155:80: E501 line too long (82 > 79 characters)
+./embeddings/views.py:156:80: E501 line too long (86 > 79 characters)
+./embeddings/views.py:158:1: W293 blank line contains whitespace
+./embeddings/views.py:160:80: E501 line too long (85 > 79 characters)
+./embeddings/views.py:161:80: E501 line too long (89 > 79 characters)
+./embeddings/views.py:163:1: W293 blank line contains whitespace
+./embeddings/views.py:166:80: E501 line too long (83 > 79 characters)
+./embeddings/views.py:169:1: W293 blank line contains whitespace
+./embeddings/views.py:171:1: W293 blank line contains whitespace
+./embeddings/views.py:174:80: E501 line too long (87 > 79 characters)
+./embeddings/views.py:175:1: W293 blank line contains whitespace
+./embeddings/views.py:177:1: W293 blank line contains whitespace
+./embeddings/views.py:183:80: E501 line too long (97 > 79 characters)
+./embeddings/views.py:184:1: W293 blank line contains whitespace
+./embeddings/views.py:189:1: W293 blank line contains whitespace
+./embeddings/views.py:195:80: E501 line too long (80 > 79 characters)
+./embeddings/views.py:196:1: W293 blank line contains whitespace
+./embeddings/views.py:205:1: W293 blank line contains whitespace
+./embeddings/views.py:210:80: E501 line too long (85 > 79 characters)
+./embeddings/views.py:211:1: W293 blank line contains whitespace
+./embeddings/views.py:221:80: E501 line too long (100 > 79 characters)
+./embeddings/views.py:222:9: E722 do not use bare 'except'
+./embeddings/views.py:225:1: W293 blank line contains whitespace
+./embeddings/views.py:230:1: W293 blank line contains whitespace
+./embeddings/views.py:236:1: W293 blank line contains whitespace
+./embeddings/views.py:241:80: E501 line too long (94 > 79 characters)
+./embeddings/views.py:243:1: W293 blank line contains whitespace
+./embeddings/views.py:250:1: W293 blank line contains whitespace
+./embeddings/views.py:254:80: E501 line too long (80 > 79 characters)
+./embeddings/views.py:257:43: W292 no newline at end of file
+./scraping/__init__.py:1:41: W292 no newline at end of file
+./scraping/simple_webscraper.py:27:1: E402 module level import not at top of file
+./scraping/simple_webscraper.py:43:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:46:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:53:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:63:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:66:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:70:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:71:80: E501 line too long (89 > 79 characters)
+./scraping/simple_webscraper.py:78:80: E501 line too long (93 > 79 characters)
+./scraping/simple_webscraper.py:81:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:83:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:89:80: E501 line too long (84 > 79 characters)
+./scraping/simple_webscraper.py:90:80: E501 line too long (83 > 79 characters)
+./scraping/simple_webscraper.py:92:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:98:80: E501 line too long (94 > 79 characters)
+./scraping/simple_webscraper.py:101:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:102:80: E501 line too long (113 > 79 characters)
+./scraping/simple_webscraper.py:104:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:115:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:119:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:123:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:125:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:129:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:133:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:137:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:140:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:142:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:143:80: E501 line too long (89 > 79 characters)
+./scraping/simple_webscraper.py:148:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:150:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:154:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:156:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:159:80: E501 line too long (82 > 79 characters)
+./scraping/simple_webscraper.py:160:80: E501 line too long (87 > 79 characters)
+./scraping/simple_webscraper.py:162:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:164:80: E501 line too long (89 > 79 characters)
+./scraping/simple_webscraper.py:165:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:168:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:172:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:176:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:179:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:181:1: W293 blank line contains whitespace
+./scraping/simple_webscraper.py:194:24: W292 no newline at end of file
+./scraping/text_vectorizer.py:3:80: E501 line too long (86 > 79 characters)
+./scraping/text_vectorizer.py:16:1: F401 'django.conf.settings' imported but unused
+./scraping/text_vectorizer.py:27:1: E402 module level import not at top of file
+./scraping/text_vectorizer.py:54:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:59:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:68:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:73:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:74:80: E501 line too long (82 > 79 characters)
+./scraping/text_vectorizer.py:76:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:87:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:91:80: E501 line too long (89 > 79 characters)
+./scraping/text_vectorizer.py:94:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:101:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:105:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:110:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:115:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:118:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:131:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:134:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:136:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:140:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:147:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:150:80: E501 line too long (83 > 79 characters)
+./scraping/text_vectorizer.py:152:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:156:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:158:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:161:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:165:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:169:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:179:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:184:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:193:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:196:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:198:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:200:80: E501 line too long (94 > 79 characters)
+./scraping/text_vectorizer.py:202:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:204:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:212:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:216:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:220:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:224:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:228:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:231:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:235:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:238:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:240:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:244:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:246:25: F541 f-string is missing placeholders
+./scraping/text_vectorizer.py:249:1: W293 blank line contains whitespace
+./scraping/text_vectorizer.py:261:11: W292 no newline at end of file
+./scraping/webscraper.py:4:80: E501 line too long (86 > 79 characters)
+./scraping/webscraper.py:28:1: E402 module level import not at top of file
+./scraping/webscraper.py:50:1: W293 blank line contains whitespace
+./scraping/webscraper.py:55:1: W293 blank line contains whitespace
+./scraping/webscraper.py:64:1: W293 blank line contains whitespace
+./scraping/webscraper.py:69:1: W293 blank line contains whitespace
+./scraping/webscraper.py:76:80: E501 line too long (82 > 79 characters)
+./scraping/webscraper.py:78:1: W293 blank line contains whitespace
+./scraping/webscraper.py:82:1: W293 blank line contains whitespace
+./scraping/webscraper.py:88:1: W293 blank line contains whitespace
+./scraping/webscraper.py:98:1: W293 blank line contains whitespace
+./scraping/webscraper.py:101:1: W293 blank line contains whitespace
+./scraping/webscraper.py:105:1: W293 blank line contains whitespace
+./scraping/webscraper.py:117:1: W293 blank line contains whitespace
+./scraping/webscraper.py:121:1: W293 blank line contains whitespace
+./scraping/webscraper.py:125:1: W293 blank line contains whitespace
+./scraping/webscraper.py:126:80: E501 line too long (89 > 79 characters)
+./scraping/webscraper.py:131:1: W293 blank line contains whitespace
+./scraping/webscraper.py:140:1: W293 blank line contains whitespace
+./scraping/webscraper.py:146:80: E501 line too long (89 > 79 characters)
+./scraping/webscraper.py:149:1: W293 blank line contains whitespace
+./scraping/webscraper.py:152:1: W293 blank line contains whitespace
+./scraping/webscraper.py:163:1: W293 blank line contains whitespace
+./scraping/webscraper.py:167:1: W293 blank line contains whitespace
+./scraping/webscraper.py:171:1: W293 blank line contains whitespace
+./scraping/webscraper.py:173:1: W293 blank line contains whitespace
+./scraping/webscraper.py:177:1: W293 blank line contains whitespace
+./scraping/webscraper.py:181:1: W293 blank line contains whitespace
+./scraping/webscraper.py:185:1: W293 blank line contains whitespace
+./scraping/webscraper.py:188:1: W293 blank line contains whitespace
+./scraping/webscraper.py:190:1: W293 blank line contains whitespace
+./scraping/webscraper.py:191:80: E501 line too long (89 > 79 characters)
+./scraping/webscraper.py:196:1: W293 blank line contains whitespace
+./scraping/webscraper.py:198:1: W293 blank line contains whitespace
+./scraping/webscraper.py:202:1: W293 blank line contains whitespace
+./scraping/webscraper.py:204:1: W293 blank line contains whitespace
+./scraping/webscraper.py:207:80: E501 line too long (82 > 79 characters)
+./scraping/webscraper.py:209:1: W293 blank line contains whitespace
+./scraping/webscraper.py:212:1: W293 blank line contains whitespace
+./scraping/webscraper.py:215:1: W293 blank line contains whitespace
+./scraping/webscraper.py:219:1: W293 blank line contains whitespace
+./scraping/webscraper.py:223:1: W293 blank line contains whitespace
+./scraping/webscraper.py:226:1: W293 blank line contains whitespace
+./scraping/webscraper.py:229:1: W293 blank line contains whitespace
+./scraping/webscraper.py:231:1: W293 blank line contains whitespace
+./scraping/webscraper.py:234:1: W293 blank line contains whitespace
+./scraping/webscraper.py:240:17: E722 do not use bare 'except'
+./sites/serializers.py:8:27: W292 no newline at end of file
+./sites/tests.py:1:1: F401 'django.test.TestCase' imported but unused
+./sites/urls.py:16:2: W292 no newline at end of file
+./test_embeddings.py:7:1: F401 'sys' imported but unused
+./test_embeddings.py:14:1: E402 module level import not at top of file
+./test_embeddings.py:16:1: E302 expected 2 blank lines, found 1
+./test_embeddings.py:22:1: W293 blank line contains whitespace
+./test_embeddings.py:32:1: W293 blank line contains whitespace
+./test_embeddings.py:36:1: W293 blank line contains whitespace
+./test_embeddings.py:42:1: E305 expected 2 blank lines after class or function definition, found 1
+./test_embeddings.py:43:27: W292 no newline at end of file
+./texts/apps.py:8:1: W293 blank line contains whitespace
+./texts/apps.py:11:9: F401 'texts.signals' imported but unused
+./texts/management/commands/process_embeddings.py:6:1: F401 'django.db.transaction' imported but unused
+./texts/management/commands/process_embeddings.py:41:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:55:80: E501 line too long (83 > 79 characters)
+./texts/management/commands/process_embeddings.py:60:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:62:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:65:80: E501 line too long (86 > 79 characters)
+./texts/management/commands/process_embeddings.py:84:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:85:80: E501 line too long (81 > 79 characters)
+./texts/management/commands/process_embeddings.py:89:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:93:1: W293 blank line contains whitespace
+./texts/management/commands/process_embeddings.py:98:1: W293 blank line contains whitespace
+./texts/signals.py:11:1: F401 'django.conf.settings' imported but unused
+./texts/signals.py:30:80: E501 line too long (97 > 79 characters)
+./texts/signals.py:33:80: E501 line too long (124 > 79 characters)
+./texts/signals.py:36:1: W293 blank line contains whitespace
+./texts/signals.py:41:1: W293 blank line contains whitespace
+./texts/signals.py:48:1: W293 blank line contains whitespace
+./texts/signals.py:52:1: W293 blank line contains whitespace
+./texts/signals.py:55:80: E501 line too long (86 > 79 characters)
+./texts/signals.py:56:1: W293 blank line contains whitespace
+./texts/signals.py:63:1: W293 blank line contains whitespace
+./texts/signals.py:64:80: E501 line too long (83 > 79 characters)
+./texts/signals.py:66:1: W293 blank line contains whitespace
+./texts/signals.py:69:80: E501 line too long (88 > 79 characters)
+./texts/signals.py:70:1: W293 blank line contains whitespace
+./texts/signals.py:72:80: E501 line too long (97 > 79 characters)
+./texts/signals.py:75:80: E501 line too long (107 > 79 characters)
+./texts/signals.py:79:80: E501 line too long (105 > 79 characters)
+./texts/signals.py:83:80: E501 line too long (85 > 79 characters)
+./texts/signals.py:85:1: W293 blank line contains whitespace
+./texts/signals.py:93:1: W293 blank line contains whitespace
+./texts/signals.py:96:1: W293 blank line contains whitespace
+./texts/signals.py:101:80: E501 line too long (84 > 79 characters)
+./texts/signals.py:103:1: W293 blank line contains whitespace
+./texts/signals.py:110:1: W293 blank line contains whitespace
+./texts/signals.py:112:80: E501 line too long (88 > 79 characters)
+./texts/signals.py:113:1: W293 blank line contains whitespace
+./texts/signals.py:115:80: E501 line too long (81 > 79 characters)
+./texts/signals.py:116:1: W293 blank line contains whitespace
+./texts/signals.py:118:80: E501 line too long (100 > 79 characters)
+./texts/signals.py:120:1: W293 blank line contains whitespace
+./texts/signals.py:123:80: E501 line too long (103 > 79 characters)
+./texts/signals.py:131:80: E501 line too long (105 > 79 characters)
+./texts/signals.py:135:1: W293 blank line contains whitespace
+./texts/signals.py:136:80: E501 line too long (85 > 79 characters)
+./texts/signals.py:138:1: W293 blank line contains whitespace
+./texts/signals.py:141:1: W293 blank line contains whitespace
+./texts/signals.py:144:1: W293 blank line contains whitespace
+./texts/signals.py:146:80: E501 line too long (95 > 79 characters)
+./texts/signals.py:148:1: W293 blank line contains whitespace
+./texts/signals.py:156:80: E501 line too long (101 > 79 characters)
+./texts/signals.py:157:80: E501 line too long (101 > 79 characters)
+./texts/signals.py:162:1: W293 blank line contains whitespace
+./texts/signals.py:164:80: E501 line too long (80 > 79 characters)
+./texts/signals.py:165:1: W293 blank line contains whitespace
+./texts/signals.py:175:1: W293 blank line contains whitespace
+./texts/signals.py:176:80: E501 line too long (97 > 79 characters)
+./texts/signals.py:178:1: W293 blank line contains whitespace
+./texts/signals.py:188:1: W293 blank line contains whitespace
+./texts/signals.py:197:1: W293 blank line contains whitespace
+./texts/signals.py:199:80: E501 line too long (111 > 79 characters)
+./texts/signals.py:201:1: W293 blank line contains whitespace
+./texts/signals.py:204:80: E501 line too long (97 > 79 characters)
+./texts/signals.py:206:1: W293 blank line contains whitespace
+./texts/signals.py:207:80: E501 line too long (85 > 79 characters)
+./texts/signals.py:208:1: W293 blank line contains whitespace
+./texts/signals.py:211:1: W293 blank line contains whitespace
+./texts/signals.py:213:80: E501 line too long (127 > 79 characters)
+./texts/signals.py:213:128: W292 no newline at end of file

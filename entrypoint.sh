@@ -3,7 +3,9 @@
 set -e
 
 if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
+  set -a
+  source .env
+  set +a
 else
   echo "Arquivo .env não encontrado!"
   exit 1
@@ -26,8 +28,8 @@ BEGIN
    IF NOT EXISTS (
       SELECT FROM pg_database WHERE datname = '$DB_NAME'
    ) THEN
-      CREATE DATABASE $DB_NAME
-      WITH OWNER = $DB_USER
+      CREATE DATABASE "$DB_NAME"
+      WITH OWNER = "$DB_USER"
       ENCODING = 'UTF8'
       LC_COLLATE = 'pt_BR.UTF-8'
       LC_CTYPE = 'pt_BR.UTF-8'
