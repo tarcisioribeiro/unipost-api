@@ -1,17 +1,17 @@
 {
 	"info": {
-		"_postman_id": "12345678-1234-1234-1234-123456789012",
+		"_postman_id": "5c78d534-0b73-4d63-b70e-6683bcdeb2be",
 		"name": "Unipost API",
 		"description": "API para gerenciamento de textos, sites e embeddings para redes sociais",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "12345678"
+		"_exporter_id": "5018572"
 	},
 	"item": [
 		{
-			"name": "Authentication",
+			"name": "Autenticação",
 			"item": [
 				{
-					"name": "Login - Obter Token",
+					"name": "Obter Token",
 					"event": [
 						{
 							"listen": "test",
@@ -23,7 +23,8 @@
 									"    pm.environment.set(\"refresh_token\", jsonData.refresh);",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -37,12 +38,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"username\": {{DB_USER}},\n    \"password\": {{DB_PASSWORD}}\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/authentication/token/",
+							"raw": "{{BASE_URL}}/api/v1/authentication/token/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -70,9 +71,9 @@
 									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/authentication/token/",
+									"raw": "{{BASE_URL}}/api/v1/authentication/token/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -110,9 +111,9 @@
 									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"wrongpassword\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/authentication/token/",
+									"raw": "{{BASE_URL}}/api/v1/authentication/token/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -138,7 +139,7 @@
 					]
 				},
 				{
-					"name": "Refresh Token",
+					"name": "Revalidar Token",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -183,9 +184,9 @@
 									"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/authentication/token/refresh/",
+									"raw": "{{BASE_URL}}/api/v1/authentication/token/refresh/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -212,7 +213,7 @@
 					]
 				},
 				{
-					"name": "Verify Token",
+					"name": "Verificar Token",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -226,9 +227,9 @@
 							"raw": "{\n    \"token\": \"{{access_token}}\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/authentication/token/verify/",
+							"raw": "{{BASE_URL}}/api/v1/authentication/token/verify/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -296,9 +297,9 @@
 									"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/authentication/logout/",
+									"raw": "{{BASE_URL}}/api/v1/authentication/logout/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -324,7 +325,7 @@
 					]
 				},
 				{
-					"name": "User Permissions",
+					"name": "Permissões de Usuário",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -360,9 +361,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/user/permissions/",
+									"raw": "{{BASE_URL}}/api/v1/user/permissions/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -391,10 +392,10 @@
 			"description": "Endpoints relacionados à autenticação JWT"
 		},
 		{
-			"name": "Texts",
+			"name": "Posts",
 			"item": [
 				{
-					"name": "List Texts",
+					"name": "Listar posts",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -404,9 +405,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/texts/",
+							"raw": "{{BASE_URL}}/api/v1/texts/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -429,9 +430,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/",
+									"raw": "{{BASE_URL}}/api/v1/texts/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -459,9 +460,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/",
+									"raw": "{{BASE_URL}}/api/v1/texts/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -486,7 +487,7 @@
 					]
 				},
 				{
-					"name": "Create Text",
+					"name": "Criar post",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -537,9 +538,9 @@
 									"raw": "{\n    \"theme\": \"Vendas Online\",\n    \"platform\": \"INT\",\n    \"content\": \"Post sobre vendas online para Instagram com dicas práticas e exemplos reais.\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/",
+									"raw": "{{BASE_URL}}/api/v1/texts/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -564,7 +565,7 @@
 					]
 				},
 				{
-					"name": "Get Text by ID",
+					"name": "Consultar post por ID",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -574,9 +575,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/texts/1/",
+							"raw": "{{BASE_URL}}/api/v1/texts/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -600,9 +601,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/1/",
+									"raw": "{{BASE_URL}}/api/v1/texts/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -628,7 +629,7 @@
 					]
 				},
 				{
-					"name": "Update Text",
+					"name": "Atualizar post",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -646,9 +647,9 @@
 							"raw": "{\n    \"theme\": \"Marketing Digital Atualizado\",\n    \"platform\": \"FCB\",\n    \"content\": \"Conteúdo atualizado sobre marketing digital para Facebook com novas estratégias\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/texts/1/",
+							"raw": "{{BASE_URL}}/api/v1/texts/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -680,9 +681,9 @@
 									"raw": "{\n    \"theme\": \"Marketing Digital Atualizado\",\n    \"platform\": \"FCB\",\n    \"content\": \"Conteúdo atualizado sobre marketing digital para Facebook com novas estratégias\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/1/",
+									"raw": "{{BASE_URL}}/api/v1/texts/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -708,7 +709,7 @@
 					]
 				},
 				{
-					"name": "Delete Text",
+					"name": "Excluir post",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -759,15 +760,15 @@
 							},
 							"status": "No Content",
 							"code": 204,
-							"_postman_previewlanguage": null,
+							"_postman_previewlanguage": "Text",
 							"header": [],
 							"cookie": [],
-							"body": null
+							"body": ""
 						}
 					]
 				},
 				{
-					"name": "Webhook - Update Approval",
+					"name": "Webhook - Atualização de aprovação",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -781,9 +782,9 @@
 							"raw": "{\n    \"id\": 1,\n    \"status\": true\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/webhook/approval/",
+							"raw": "{{BASE_URL}}/api/v1/webhook/approval/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -811,9 +812,9 @@
 									"raw": "{\n    \"id\": 1,\n    \"status\": true\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/webhook/approval/",
+									"raw": "{{BASE_URL}}/api/v1/webhook/approval/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -851,9 +852,9 @@
 									"raw": "{\n    \"status\": true\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/webhook/approval/",
+									"raw": "{{BASE_URL}}/api/v1/webhook/approval/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -891,9 +892,9 @@
 									"raw": "{\n    \"id\": 1\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/webhook/approval/",
+									"raw": "{{BASE_URL}}/api/v1/webhook/approval/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -925,7 +926,7 @@
 			"name": "Sites",
 			"item": [
 				{
-					"name": "List Sites",
+					"name": "Listar sites",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -935,9 +936,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/sites/",
+							"raw": "{{BASE_URL}}/api/v1/sites/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -960,9 +961,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/",
+									"raw": "{{BASE_URL}}/api/v1/sites/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -990,9 +991,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/",
+									"raw": "{{BASE_URL}}/api/v1/sites/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1017,7 +1018,7 @@
 					]
 				},
 				{
-					"name": "Create Site",
+					"name": "Criar site",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -1068,9 +1069,9 @@
 									"raw": "{\n    \"name\": \"E-commerce Tech\",\n    \"url\": \"https://loja-tech.com.br\",\n    \"category\": \"ECOMMERCE\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/",
+									"raw": "{{BASE_URL}}/api/v1/sites/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1095,7 +1096,7 @@
 					]
 				},
 				{
-					"name": "Get Site by ID",
+					"name": "Consultar site pr ID",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1105,9 +1106,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/sites/1/",
+							"raw": "{{BASE_URL}}/api/v1/sites/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1131,9 +1132,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/1/",
+									"raw": "{{BASE_URL}}/api/v1/sites/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1159,7 +1160,7 @@
 					]
 				},
 				{
-					"name": "Update Site",
+					"name": "Atualizar site",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -1177,9 +1178,9 @@
 							"raw": "{\n    \"name\": \"Blog Pessoal Atualizado\",\n    \"url\": \"https://novo-exemplo.com.br\",\n    \"category\": \"BLOG\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/sites/1/",
+							"raw": "{{BASE_URL}}/api/v1/sites/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1211,9 +1212,9 @@
 									"raw": "{\n    \"name\": \"Blog Pessoal Atualizado\",\n    \"url\": \"https://novo-exemplo.com.br\",\n    \"category\": \"BLOG\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/1/",
+									"raw": "{{BASE_URL}}/api/v1/sites/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1239,7 +1240,7 @@
 					]
 				},
 				{
-					"name": "Delete Site",
+					"name": "Excluir site",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1249,9 +1250,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/sites/1/",
+							"raw": "{{BASE_URL}}/api/v1/sites/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1275,9 +1276,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/sites/1/",
+									"raw": "{{BASE_URL}}/api/v1/sites/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1290,10 +1291,10 @@
 							},
 							"status": "No Content",
 							"code": 204,
-							"_postman_previewlanguage": null,
+							"_postman_previewlanguage": "Text",
 							"header": [],
 							"cookie": [],
-							"body": null
+							"body": ""
 						}
 					]
 				}
@@ -1304,8 +1305,18 @@
 			"name": "Embeddings",
 			"item": [
 				{
-					"name": "List Embeddings",
+					"name": "Listar embeddings",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU3NjcyODAxLCJpYXQiOjE3NTc2NzE5MDEsImp0aSI6ImNhY2FkY2IzMGNiMjQ5ZDBiOGNkODhiYmFiMDdjYmQ2IiwidXNlcl9pZCI6IjIifQ.wL0p5aF2xs5mDKRVjReYxodlXlO7ICFpEgWLPgpYNho",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [
 							{
@@ -1314,15 +1325,21 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/embeddings/",
+							"raw": "{{BASE_URL}}/api/v1/embeddings/?search={{SEARCH_EXAMPLE}}",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
 								"v1",
 								"embeddings",
 								""
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "{{SEARCH_EXAMPLE}}"
+								}
 							]
 						},
 						"description": "Lista todos os embeddings do sistema"
@@ -1339,9 +1356,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1369,9 +1386,9 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1396,7 +1413,7 @@
 					]
 				},
 				{
-					"name": "Create Embedding",
+					"name": "Criar embedding",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -1414,9 +1431,9 @@
 							"raw": "{\n    \"origin\": \"generated\",\n    \"content\": \"Texto gerado automaticamente para análise\",\n    \"title\": \"Análise de Sentimentos\",\n    \"embedding_vector\": [0.5, 0.6, 0.7, 0.8, 0.9],\n    \"metadata\": {\n        \"model_version\": \"v1.0\",\n        \"confidence\": 0.95\n    }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/embeddings/",
+							"raw": "{{BASE_URL}}/api/v1/embeddings/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1447,9 +1464,9 @@
 									"raw": "{\n    \"origin\": \"generated\",\n    \"content\": \"Texto gerado automaticamente para análise\",\n    \"title\": \"Análise de Sentimentos\",\n    \"embedding_vector\": [0.5, 0.6, 0.7, 0.8, 0.9],\n    \"metadata\": {\n        \"model_version\": \"v1.0\",\n        \"confidence\": 0.95\n    }\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1474,7 +1491,7 @@
 					]
 				},
 				{
-					"name": "Get Embedding by ID",
+					"name": "Consultar embedding por ID",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1484,9 +1501,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+							"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1510,9 +1527,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1538,7 +1555,7 @@
 					]
 				},
 				{
-					"name": "Update Embedding",
+					"name": "Atualizar embedding",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -1590,9 +1607,9 @@
 									"raw": "{\n    \"origin\": \"webscraping\",\n    \"content\": \"Conteúdo atualizado e refinado\",\n    \"title\": \"Artigo sobre IA - Versão 2024\",\n    \"embedding_vector\": [0.2, 0.3, 0.4, 0.5],\n    \"metadata\": {\n        \"source_url\": \"https://exemplo.com/artigo-atualizado\",\n        \"date_scraped\": \"2024-01-15\",\n        \"version\": \"2.0\"\n    }\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1618,7 +1635,7 @@
 					]
 				},
 				{
-					"name": "Delete Embedding",
+					"name": "Excluir embedding",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1628,9 +1645,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+							"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1654,9 +1671,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+									"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1669,10 +1686,10 @@
 							},
 							"status": "No Content",
 							"code": 204,
-							"_postman_previewlanguage": null,
+							"_postman_previewlanguage": "Text",
 							"header": [],
 							"cookie": [],
-							"body": null
+							"body": ""
 						}
 					]
 				}
@@ -1698,23 +1715,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://192.168.2.200:8005",
-			"type": "string"
-		},
-		{
-			"key": "access_token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "refresh_token",
-			"value": "",
-			"type": "string"
 		}
 	]
 }

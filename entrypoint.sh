@@ -44,13 +44,13 @@ EOF
 python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --noinput
-python createsuperuser.py
-python create_members_group.py
+python manage.py setup_superuser
+python manage.py create_members_group
 
 echo "Executando vetorização do Elasticsearch em background..."
-(cd brain && python vectorizer_runner.py > vectorizer.log 2>&1) &
+(cd brain && python business_vectorizer.py > vectorizer.log 2>&1) &
 VECTORIZER_PID=$!
-echo "Business Vectorizer Runner iniciado com PID: $VECTORIZER_PID"
+echo "Business Vectorizer iniciado com PID: $VECTORIZER_PID"
 echo "Logs da vetorização: /app/brain/vectorizer.log"
 
 python manage.py runserver 0.0.0.0:8005
