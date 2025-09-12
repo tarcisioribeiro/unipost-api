@@ -80,74 +80,114 @@ class WebScraper:
             logger.error(f"Erro ao autenticar na API: {e}")
             return False
     
-    async def get_sites_from_database(self) -> List[Dict[str, Any]]:
-        """Obtém lista de sites diretamente do banco de dados"""
+    def get_sites_from_database_sync(self) -> List[Dict[str, Any]]:
+        """Obtém lista de sites diretamente do banco de dados (versão síncrona)"""
         try:
-            sites = Site.objects.all()
-            sites_data = []
+            from django.db import transaction
             
-            for site in sites:
-                sites_data.append({
-                    'id': site.id,
-                    'name': site.name,
-                    'url': site.url,
-                    'category': site.category,
-                    'created_at': site.created_at.isoformat(),
-                    'updated_at': site.updated_at.isoformat()
-                })
-            
-            logger.info(f"Obtidos {len(sites_data)} sites do banco de dados")
-            return sites_data
-                    
+            with transaction.atomic():
+                sites = Site.objects.all()
+                sites_data = []
+                
+                for site in sites:
+                    sites_data.append({
+                        'id': site.id,
+                        'name': site.name,
+                        'url': site.url,
+                        'category': site.category,
+                        'created_at': site.created_at.isoformat(),
+                        'updated_at': site.updated_at.isoformat()
+                    })
+                
+                logger.info(f"Obtidos {len(sites_data)} sites do banco de dados")
+                return sites_data
+                        
         except Exception as e:
             logger.error(f"Erro ao consultar sites: {e}")
             return []
     
-    async def init_mcp_client(self):
-        """Inicializa o cliente MCP gratuito"""
+    async def get_sites_from_database(self) -> List[Dict[str, Any]]:
+        """Wrapper assíncrono para consulta de sites"""
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+        
         try:
-            # Configura parâmetros do servidor MCP
-            server_params = StdioServerParameters(
-                command="npx",
-                args=[
-                    "-y",
-                    "@modelcontextprotocol/server-web-search@latest"
-                ]
+            # Executa a consulta Django em thread separada
+            loop = asyncio.get_event_loop()
+            with ThreadPoolExecutor() as executor:
+                sites_data = await loop.run_in_executor(executor, self.get_sites_from_database_sync)
+            return sites_data
+        except Exception as e:
+            logger.error(f"Erro ao consultar sites: {e}")
+            return []
+    
+    async def init_web_client(self):
+        """Inicializa cliente web simples"""
+        try:
+            self.web_client = httpx.AsyncClient(
+                timeout=30.0,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
             )
-            
-            # Inicia conexão com servidor MCP
-            self.session = await stdio_client(server_params).__aenter__()
-            logger.info("Cliente MCP inicializado com sucesso")
+            logger.info("Cliente web inicializado com sucesso")
             
         except Exception as e:
-            logger.error(f"Erro ao inicializar MCP: {e}")
+            logger.error(f"Erro ao inicializar cliente web: {e}")
             raise
     
     async def scrape_site_content(self, site_url: str, site_name: str) -> Dict[str, Any]:
-        """Realiza scraping de um site usando MCP"""
+        """Realiza scraping de um site usando httpx"""
         try:
-            if not self.session:
-                await self.init_mcp_client()
+            if not hasattr(self, 'web_client'):
+                await self.init_web_client()
             
-            # Usa ferramenta de web search do MCP para obter conteúdo
-            result = await self.session.call_tool(
-                "web_search",
-                arguments={
-                    "query": f"site:{site_url}",
-                    "max_results": 5
-                }
-            )
+            # Verifica se a URL tem protocolo
+            if not site_url.startswith(('http://', 'https://')):
+                site_url = 'https://' + site_url
+            
+            # Faz request direto para o site (seguindo redirects)
+            response = await self.web_client.get(site_url, follow_redirects=True)
+            response.raise_for_status()
+            
+            # Parse básico do HTML usando BeautifulSoup (importado dinamicamente)
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                # Remove scripts e styles
+                for script in soup(["script", "style"]):
+                    script.decompose()
+                
+                # Extrai texto principal
+                title = soup.find('title')
+                title_text = title.get_text().strip() if title else site_name
+                
+                # Extrai parágrafos principais
+                paragraphs = soup.find_all('p')
+                content_text = ' '.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+                
+                # Limita o tamanho do conteúdo
+                if len(content_text) > 5000:
+                    content_text = content_text[:5000] + "..."
+                
+            except ImportError:
+                # Fallback sem BeautifulSoup - texto básico
+                content_text = response.text[:5000] + "..." if len(response.text) > 5000 else response.text
+                title_text = site_name
             
             # Processa o resultado
             scraped_content = {
                 "site_name": site_name,
                 "site_url": site_url,
+                "title": title_text,
                 "scraped_at": datetime.now().isoformat(),
-                "content": result.content if hasattr(result, 'content') else str(result),
+                "content": content_text,
+                "content_length": len(content_text),
                 "status": "success"
             }
             
-            logger.info(f"Scraping realizado com sucesso para: {site_name}")
+            logger.info(f"Scraping realizado com sucesso para: {site_name} ({len(content_text)} chars)")
             return scraped_content
             
         except Exception as e:
@@ -155,8 +195,10 @@ class WebScraper:
             return {
                 "site_name": site_name,
                 "site_url": site_url,
+                "title": "",
                 "scraped_at": datetime.now().isoformat(),
-                "content": None,
+                "content": "",
+                "content_length": 0,
                 "status": "error",
                 "error": str(e)
             }
@@ -218,8 +260,8 @@ class WebScraper:
         logger.info("Iniciando WebScraper...")
         
         try:
-            # Inicializa cliente MCP
-            await self.init_mcp_client()
+            # Inicializa cliente web
+            await self.init_web_client()
             
             # Realiza scraping de todos os sites
             results = await self.scrape_all_sites()
@@ -234,9 +276,9 @@ class WebScraper:
         
         finally:
             # Cleanup
-            if self.session:
+            if hasattr(self, 'web_client'):
                 try:
-                    await self.session.__aexit__(None, None, None)
+                    await self.web_client.aclose()
                 except:
                     pass
 
