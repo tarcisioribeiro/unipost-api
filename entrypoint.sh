@@ -47,6 +47,9 @@ python manage.py collectstatic --noinput
 python manage.py setup_superuser
 python manage.py create_members_group
 
+echo "Instalando MCP SDK..."
+npm install -g @modelcontextprotocol/sdk
+
 echo "Executando vetorização do Elasticsearch em background..."
 (cd brain && python business_vectorizer.py > vectorizer.log 2>&1) &
 VECTORIZER_PID=$!
