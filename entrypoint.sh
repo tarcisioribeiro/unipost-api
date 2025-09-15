@@ -51,9 +51,9 @@ echo "Instalando MCP SDK..."
 npm install -g @modelcontextprotocol/sdk
 
 echo "Executando vetorização do Elasticsearch em background..."
-(cd brain && python business_vectorizer.py > vectorizer.log 2>&1) &
+(cd brain && python business_vectorizer.py >vectorizer.log 2>&1) &
 VECTORIZER_PID=$!
 echo "Business Vectorizer iniciado com PID: $VECTORIZER_PID"
 echo "Logs da vetorização: /app/brain/vectorizer.log"
 
-python manage.py runserver 0.0.0.0:8005
+gunicorn --bind 0.0.0.0:8005 --workers 4 --timeout 120 app.wsgi:application
