@@ -9,6 +9,7 @@ Uma API RESTful desenvolvida em Django para gerenciamento de textos para redes s
 - **Business Brain**: Sincronização e vetorização de dados corporativos do ElasticSearch
 - **Busca Semântica**: Sistema de busca baseado em similaridade de vetores
 - **Banco Vetorizado**: PostgreSQL com extensão pgvector para armazenamento de embeddings
+- **🎨 Geração de Imagens com IA**: Sistema completo de geração de imagens usando DALL-E e GPT-4 para posts
 
 ## 📋 Funcionalidades Principais
 
@@ -86,6 +87,17 @@ unipost-api/
 │   │   └── storage/       # Módulos de armazenamento
 │   ├── tests/             # Testes automatizados
 │   └── logs/              # Logs do sistema
+├── unipost_image_generator/ # 🎨 Módulo de Geração de Imagens com IA
+│   ├── generator.py       # Orquestrador principal de geração
+│   ├── clients.py         # Cliente DALL-E (OpenAI)
+│   ├── prompt_builder.py  # Construtor de prompts com GPT-4
+│   ├── storage.py         # Gerenciador de armazenamento
+│   ├── models.py          # Modelos Django para metadados
+│   ├── views.py           # Views REST para API
+│   ├── serializers.py     # Serializers DRF
+│   ├── urls.py            # URLs da API
+│   ├── admin.py           # Interface Django Admin
+│   └── tests/             # Testes automatizados
 ├── docker-compose.yml      # Configuração Docker Compose
 ├── init-db.sql            # ✨ Inicialização PostgreSQL com pgvector
 ├── Dockerfile             # Imagem Docker da aplicação
@@ -160,16 +172,31 @@ UNIPOST_AUTOMATION_INTERVAL=300  # seconds (300 = 5 minutes)
 UNIPOST_AUTOMATION_MAX_PAGES=50
 UNIPOST_AUTOMATION_MAX_DEPTH=2
 
+# 🎨 Unipost Image Generator Settings
+DALLE_API_KEY=sua_chave_openai
+IMAGE_STORAGE_PATH=media/generated_images/
+IMAGE_GENERATION_DEFAULT_SIZE=1024x1024
+IMAGE_GENERATION_MAX_CONCURRENT=3
+GPT4_MODEL=gpt-4
+
 # Logging
 LOG_FORMAT=json
 ```
 
-### 3. Obtenha a chave da API Google Gemini
+### 3. Obtenha as chaves das APIs
 
+#### Google Gemini (para embeddings)
 1. Acesse [Google AI Studio](https://aistudio.google.com/)
 2. Crie uma conta gratuita
 3. Gere uma API Key
 4. Adicione a chave no arquivo `.env`
+
+#### OpenAI (para geração de imagens e construção de prompts)
+1. Acesse [OpenAI Platform](https://platform.openai.com/)
+2. Crie uma conta e configure um método de pagamento
+3. Gere uma API Key
+4. Adicione `DALLE_API_KEY` no arquivo `.env`
+5. **Nota**: A mesma chave é usada para DALL-E (imagens) e GPT-4 (prompts)
 
 ### 4. Execute com Docker Compose
 
@@ -261,6 +288,22 @@ python unipost_automation/src/bot/async_bot.py
 # Monitora URLs → WebScraping → Embeddings → Replica no WordPress
 ```
 
+### 5. Geração de Imagens com IA (Novo!)
+```bash
+# Gerar imagem para um post específico
+from unipost_image_generator.generator import generate_image_for_post
+
+# Exemplo de uso
+result = await generate_image_for_post(
+    embedding_id="uuid-do-embedding",
+    text="Texto do post",
+    title="Título do post"
+)
+
+# Fluxo completo:
+# Texto → GPT-4 gera prompt otimizado → DALL-E gera imagem → Armazena com metadados
+```
+
 ## 📚 Documentação da API
 
 ### Autenticação
@@ -349,6 +392,46 @@ GET /api/v1/embeddings/{uuid}/
 Authorization: Bearer seu_access_token
 ```
 
+### Geração de Imagens (Sistema de IA)
+
+#### Gerar Imagem para Embedding
+```
+POST /api/v1/image-generator/generate/
+Authorization: Bearer seu_access_token
+Content-Type: application/json
+
+{
+    "embedding_id": "uuid-do-embedding",
+    "custom_prompt": "Prompt personalizado (opcional)",
+    "style_preferences": {
+        "style": "vivid",
+        "size": "1024x1024",
+        "quality": "standard"
+    }
+}
+```
+
+#### Listar Imagens Geradas
+```
+GET /api/v1/image-generator/images/
+Authorization: Bearer seu_access_token
+
+# Filtros:
+# ?embedding_id=uuid     - Imagens de um embedding específico
+# ?created_at__gte=date  - Imagens criadas após data
+```
+
+#### Regenerar Imagem
+```
+POST /api/v1/image-generator/regenerate/{embedding_id}/
+Authorization: Bearer seu_access_token
+Content-Type: application/json
+
+{
+    "new_prompt": "Novo prompt personalizado (opcional)"
+}
+```
+
 ## 🗄️ Modelos de Banco de Dados
 
 ### Modelo Text (com Signal de Vetorização)
@@ -381,6 +464,20 @@ class Embedding(models.Model):
     title = models.CharField(max_length=500)              # Título
     embedding_vector = models.JSONField()                 # Vetor do Gemini (1536 dim)
     metadata = models.JSONField(default=dict)             # Metadados enriquecidos
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+```
+
+### Modelo GeneratedImage (Sistema de Geração de Imagens)
+```python
+class GeneratedImage(models.Model):
+    id = models.UUIDField(primary_key=True)               # UUID único
+    embedding = models.ForeignKey(Embedding)              # Relacionamento com embedding
+    original_text = models.TextField()                    # Texto do post original
+    generated_prompt = models.TextField()                 # Prompt otimizado pelo GPT-4
+    image_path = models.CharField(max_length=500)         # Caminho da imagem gerada
+    dalle_response = models.JSONField(default=dict)       # Metadados DALL-E
+    generation_metadata = models.JSONField(default=dict)  # Metadados do processo
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 ```
@@ -521,6 +618,51 @@ tail -f unipost_automation/logs/async_bot.log
 tail -f unipost_automation/logs/*.log
 ```
 
+### Unipost Image Generator (Novo!)
+```bash
+# Gerar imagem manualmente (via Django shell)
+python manage.py shell
+
+>>> from unipost_image_generator.generator import generate_image_for_post
+>>> import asyncio
+>>>
+>>> # Gerar imagem para um embedding existente
+>>> result = asyncio.run(generate_image_for_post(
+...     embedding_id="uuid-do-embedding",
+...     text="Texto do post",
+...     title="Título do post"
+... ))
+>>> print(f"Imagem gerada: {result.image_path}")
+
+# Testar componentes individuais
+python -c "
+from unipost_image_generator.clients import DalleApiClient
+from unipost_image_generator.prompt_builder import OpenAIPromptBuilder
+import asyncio
+
+async def test():
+    # Testar DALL-E client
+    dalle = DalleApiClient()
+    await dalle.initialize()
+    print('DALL-E Client OK')
+
+    # Testar GPT-4 prompt builder
+    gpt4 = OpenAIPromptBuilder()
+    await gpt4.initialize()
+    print('GPT-4 Client OK')
+
+asyncio.run(test())
+"
+
+# Verificar estatísticas de geração
+python manage.py shell -c "
+from unipost_image_generator.models import GeneratedImage
+from django.db.models import Count
+print('Imagens por embedding:')
+print(GeneratedImage.objects.values('embedding__title').annotate(count=Count('id')))
+"
+```
+
 ## 🐛 Solução de Problemas
 
 ### Problemas de IA/Embeddings
@@ -537,6 +679,16 @@ tail -f unipost_automation/logs/*.log
 3. **Sites não são monitorados**: Verifique se existe pelo menos um Site cadastrado no admin Django
 4. **Robô não processa posts**: Verifique logs em `unipost_automation/logs/async_bot.log`
 5. **Conteúdo vazio no scraping**: Configure seletores CSS específicos para os sites no admin Django
+
+### Problemas do Unipost Image Generator
+
+1. **DALL-E API falha**: Verifique `DALLE_API_KEY` e créditos OpenAI
+2. **GPT-4 API falha**: Verifique `DALLE_API_KEY` e créditos OpenAI
+3. **Erro 401 OpenAI**: Confirme que a chave DALL-E é válida e tem créditos
+4. **Imagens não são salvas**: Verifique permissões na pasta `IMAGE_STORAGE_PATH`
+5. **Timeout na geração**: Ajuste `IMAGE_GENERATION_TIMEOUT` no .env
+6. **Prompt muito longo**: DALL-E aceita máximo 1000 caracteres
+7. **Módulo não inicializa**: Verifique logs do Django para erros de importação
 
 ### Problemas Gerais
 

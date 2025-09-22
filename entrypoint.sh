@@ -56,4 +56,11 @@ VECTORIZER_PID=$!
 echo "Business Vectorizer iniciado com PID: $VECTORIZER_PID"
 echo "Logs da vetorização: /app/brain/vectorizer.log"
 
+echo "Iniciando robô de monitoramento de posts em background..."
+mkdir -p unipost_automation/logs
+nohup python unipost_automation/src/bot/async_bot.py > unipost_automation/logs/async_bot.log 2>&1 &
+ASYNC_BOT_PID=$!
+echo "Async Bot iniciado com PID: $ASYNC_BOT_PID"
+echo "Logs do async bot: /app/unipost_automation/logs/async_bot.log"
+
 gunicorn --bind 0.0.0.0:8005 --workers 4 --timeout 120 app.wsgi:application
