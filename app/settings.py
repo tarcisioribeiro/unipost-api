@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'authentication',
     'texts',
     'sites',
-    'embeddings'
+    'embeddings',
+    'unipost_image_generator'
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8501",
     "http://127.0.0.1:8501",
 ]
+
+# DALL-E API Configuration
+DALLE_API_KEY = os.getenv("DALLE_API_KEY", "")
+IMAGE_STORAGE_PATH = BASE_DIR / "unipost_automation/src/images"

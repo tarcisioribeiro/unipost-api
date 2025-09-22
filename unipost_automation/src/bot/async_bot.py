@@ -107,7 +107,7 @@ class UnipostAsyncBot:
             return []
 
     async def process_new_post(self, post: Dict[str, Any]) -> bool:
-        """Processa um novo post: scraping -> embedding -> replicação"""
+        """Processa um novo post: scraping -> embedding -> geração de imagem -> replicação"""
         try:
             post_url = post['url']
             logger.info(f"⚡ Processando: {post['title']} - {post_url}")
@@ -126,14 +126,42 @@ class UnipostAsyncBot:
 
             # 3. Salva embedding no banco
             embedding_id = await self.db_manager.save_embedding(formatted_data)
+            if not embedding_id:
+                logger.warning(f"⚠️  Falha ao salvar embedding de {post_url}")
+                return False
 
-            # 4. Replica post no WordPress
+            # 4. NOVO: Gera imagem usando o módulo unipost_image_generator
+            try:
+                # Adicionar ID do embedding aos dados formatados
+                if 'embedding' not in formatted_data:
+                    formatted_data['embedding'] = {}
+                formatted_data['embedding']['id'] = embedding_id
+
+                # Importar e usar o gerador de imagens
+                from unipost_image_generator.generator import process_post_for_images
+
+                logger.info(f"🎨 Gerando imagem para post: {post['title']}")
+                image_path = await process_post_for_images(formatted_data)
+
+                if image_path:
+                    logger.info(f"✅ Imagem gerada: {image_path}")
+                    # Adicionar caminho da imagem aos dados formatados
+                    formatted_data['generated_image_path'] = image_path
+                else:
+                    logger.warning(f"⚠️  Falha na geração de imagem de {post_url}")
+                    # Continuar mesmo sem imagem - não é erro crítico
+
+            except Exception as img_error:
+                logger.error(f"❌ Erro na geração de imagem para {post_url}: {img_error}")
+                # Continuar processamento mesmo com falha na imagem
+
+            # 5. Replica post no WordPress (agora com imagem se disponível)
             wp_post_id = await self.wordpress_client.create_post(formatted_data)
             if not wp_post_id:
                 logger.warning(f"⚠️  Falha na replicação de {post_url}")
                 return False
 
-            # 5. Marca como processado
+            # 6. Marca como processado
             await self.db_manager.mark_as_processed(
                 post_url, embedding_id, wp_post_id
             )

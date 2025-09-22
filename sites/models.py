@@ -31,7 +31,12 @@ class Site(models.Model):
         blank=False,
         verbose_name="Categoria"
     )
-    # Configurações de crawling recursivo
+    # Configurações de monitoramento e crawling
+    monitored = models.BooleanField(
+        default=False,
+        verbose_name="Monitorar para novos posts",
+        help_text="Se True, monitora para novos posts e replica automaticamente. Se False, apenas faz webscraping recursivo."
+    )
     enable_recursive_crawling = models.BooleanField(
         default=True,
         verbose_name="Habilitar crawling recursivo"

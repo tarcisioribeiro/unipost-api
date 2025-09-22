@@ -50,7 +50,8 @@ class DatabaseManager:
     def get_monitored_sites_sync(self) -> List[Dict[str, Any]]:
         """Obtém sites monitorados (versão síncrona)"""
         try:
-            sites = Site.objects.filter(enable_recursive_crawling=True)
+            # Filtra apenas sites com monitored=True para replicação automática
+            sites = Site.objects.filter(monitored=True)
             sites_data = []
 
             for site in sites:
@@ -59,6 +60,7 @@ class DatabaseManager:
                     'name': site.name,
                     'url': site.url,
                     'category': site.category,
+                    'monitored': site.monitored,
                     'enable_recursive_crawling': site.enable_recursive_crawling,
                     'max_depth': site.max_depth,
                     'max_pages': site.max_pages,
