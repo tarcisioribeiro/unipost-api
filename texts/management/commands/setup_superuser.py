@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from django.conf import settings
 import os
 
 
@@ -26,21 +25,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User = get_user_model()
-        
         # Usar argumentos da linha de comando ou variáveis de ambiente
         username = (
-            options.get('username') or 
+            options.get('username') or
             os.getenv("DJANGO_SUPERUSER_USERNAME")
         )
         email = (
-            options.get('email') or 
+            options.get('email') or
             os.getenv("DJANGO_SUPERUSER_EMAIL")
         )
         password = (
-            options.get('password') or 
+            options.get('password') or
             os.getenv("DJANGO_SUPERUSER_PASSWORD")
         )
-        
         if not username:
             self.stdout.write(
                 self.style.ERROR(
@@ -49,7 +46,6 @@ class Command(BaseCommand):
                 )
             )
             return
-        
         if not password:
             self.stdout.write(
                 self.style.ERROR(
@@ -66,7 +62,8 @@ class Command(BaseCommand):
                 password=password
             )
             self.stdout.write(
-                self.style.SUCCESS(f"Superusuário '{username}' criado com sucesso!")
+                self.style.SUCCESS(
+                    f"Superusuário '{username}' criado com sucesso!")
             )
         else:
             self.stdout.write(

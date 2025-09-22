@@ -75,6 +75,17 @@ unipost-api/
 │   ├── business_vectorizer.py    # Sincronização com ElasticSearch
 │   ├── crontab_setup.sh   # Configuração automática do crontab
 │   └── README.md          # Documentação do Business Brain
+├── unipost_automation/     # 🤖 Módulo de Automação Completa
+│   ├── README.md          # Documentação da automação
+│   ├── docs/setup.md      # Guia detalhado de configuração
+│   ├── src/               # Código fonte da automação
+│   │   ├── bot/async_bot.py         # Robô assíncrono principal
+│   │   ├── scraping/webscraper.py   # Webscraper otimizado
+│   │   ├── formatting/text_formatter.py # Formatação e embeddings
+│   │   ├── posting/wordpress_client.py  # Cliente WordPress
+│   │   └── storage/       # Módulos de armazenamento
+│   ├── tests/             # Testes automatizados
+│   └── logs/              # Logs do sistema
 ├── docker-compose.yml      # Configuração Docker Compose
 ├── init-db.sql            # ✨ Inicialização PostgreSQL com pgvector
 ├── Dockerfile             # Imagem Docker da aplicação
@@ -138,6 +149,17 @@ ELASTICSEARCH_PASSWORD=
 ELASTICSEARCH_USE_SSL=false
 ELASTICSEARCH_VERIFY_CERTS=false
 
+# 🤖 WordPress Configuration (for Unipost Automation)
+WORDPRESS_URL=https://seusite.wordpress.com
+WORDPRESS_USERNAME=seu_usuario_wp
+WORDPRESS_APP_PASSWORD=sua_senha_de_aplicativo_wp
+
+# 🤖 Unipost Automation Settings
+UNIPOST_AUTOMATION_ENABLED=true
+UNIPOST_AUTOMATION_INTERVAL=300  # seconds (300 = 5 minutes)
+UNIPOST_AUTOMATION_MAX_PAGES=50
+UNIPOST_AUTOMATION_MAX_DEPTH=2
+
 # Logging
 LOG_FORMAT=json
 ```
@@ -176,7 +198,31 @@ docker-compose exec app python manage.py createsuperuser
 docker-compose exec app ./brain/crontab_setup.sh
 ```
 
-### 7. Acesse a API
+### 7. Configure o WordPress para Automação (opcional)
+
+Se você deseja usar o módulo de automação completa que replica posts automaticamente:
+
+1. **Configure WordPress REST API**:
+   - Acesse seu painel WordPress
+   - Vá em **Usuários > Perfil**
+   - Crie uma **Senha de Aplicativo** para "Unipost Automation"
+   - Adicione as credenciais no `.env`
+
+2. **Execute o Robô de Automação**:
+   ```bash
+   # Executar dentro do container
+   docker-compose exec app python unipost_automation/src/bot/async_bot.py
+
+   # Ou executar localmente (com ambiente virtual ativo)
+   python unipost_automation/src/bot/async_bot.py
+   ```
+
+3. **Verificar Logs da Automação**:
+   ```bash
+   tail -f unipost_automation/logs/async_bot.log
+   ```
+
+### 8. Acesse a API
 
 A API estará disponível em: `http://localhost:8005`
 
@@ -204,6 +250,15 @@ python scraping/text_vectorizer.py     # Vetoriza dados coletados
 
 # Ou execução manual
 python brain/business_vectorizer.py
+```
+
+### 4. Automação Completa WordPress (Novo!)
+```bash
+# Executa robô que monitora sites e replica posts automaticamente
+python unipost_automation/src/bot/async_bot.py
+
+# Fluxo completo:
+# Monitora URLs → WebScraping → Embeddings → Replica no WordPress
 ```
 
 ## 📚 Documentação da API
@@ -447,6 +502,25 @@ python brain/business_vectorizer.py
 crontab -l
 ```
 
+### Unipost Automation (Novo!)
+```bash
+# Executar robô de automação
+python unipost_automation/src/bot/async_bot.py
+
+# Testar módulos individuais
+python unipost_automation/src/scraping/webscraper.py       # WebScraper
+python unipost_automation/src/formatting/text_formatter.py # Formatador
+python unipost_automation/src/posting/wordpress_client.py  # WordPress
+python unipost_automation/src/storage/db.py               # Database
+
+# Executar testes
+python unipost_automation/tests/test_basic.py
+
+# Verificar logs
+tail -f unipost_automation/logs/async_bot.log
+tail -f unipost_automation/logs/*.log
+```
+
 ## 🐛 Solução de Problemas
 
 ### Problemas de IA/Embeddings
@@ -455,6 +529,14 @@ crontab -l
 2. **pgvector não instalado**: Execute `CREATE EXTENSION vector;` no PostgreSQL
 3. **ElasticSearch não conecta**: Verifique configurações de host/porta
 4. **Embeddings não são criados**: Verifique logs dos signals do Django
+
+### Problemas do Unipost Automation
+
+1. **WordPress não conecta**: Verifique `WORDPRESS_URL`, `WORDPRESS_USERNAME` e `WORDPRESS_APP_PASSWORD`
+2. **Erro 401 WordPress**: Confirme que a senha de aplicativo está correta
+3. **Sites não são monitorados**: Verifique se existe pelo menos um Site cadastrado no admin Django
+4. **Robô não processa posts**: Verifique logs em `unipost_automation/logs/async_bot.log`
+5. **Conteúdo vazio no scraping**: Configure seletores CSS específicos para os sites no admin Django
 
 ### Problemas Gerais
 

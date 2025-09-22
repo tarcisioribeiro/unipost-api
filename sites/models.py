@@ -48,19 +48,28 @@ class Site(models.Model):
         blank=True,
         null=True,
         verbose_name="Padrões de URL permitidos (um por linha)",
-        help_text="Expressões regulares para URLs que devem ser incluídas no crawling"
+        help_text=(
+            "Expressões regulares para URLs que devem ser incluídas no "
+            "crawling"
+        )
     )
     deny_patterns = models.TextField(
         blank=True,
         null=True,
         verbose_name="Padrões de URL negados (um por linha)",
-        help_text="Expressões regulares para URLs que devem ser excluídas do crawling"
+        help_text=(
+            "Expressões regulares para URLs que devem ser excluídas do "
+            "crawling"
+        )
     )
     content_selectors = models.TextField(
         blank=True,
         null=True,
         verbose_name="Seletores CSS para conteúdo",
-        help_text="Seletores CSS específicos para extrair conteúdo relevante (um por linha)"
+        help_text=(
+            "Seletores CSS específicos para extrair conteúdo relevante "
+            "(um por linha)"
+        )
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

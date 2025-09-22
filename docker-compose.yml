@@ -14,11 +14,7 @@ services:
       - ./static:/app/static
     restart: unless-stopped
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:8005/health/ || wget -q --spider http://localhost:8005/health/",
-        ]
+      test: ["CMD", "sh", "-c", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8005/admin/login/ | grep -q 200"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -13,7 +13,6 @@ from datetime import datetime
 from pathlib import Path
 import django
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import ConnectionError
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -24,6 +23,7 @@ sys.path.insert(0, project_root)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 django.setup()
 
+# Django imports after setup
 from embeddings.models import Embedding
 
 # Carrega variáveis de ambiente
@@ -34,7 +34,9 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(Path(__file__).parent / 'business_brain_fixed.log'),
+        logging.FileHandler(
+            Path(__file__).parent / 'business_brain_fixed.log'
+        ),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -55,6 +57,7 @@ ELASTICSEARCH_CONFIG = {
     'api_key': os.getenv('ES_API_KEY')
 }
 
+
 class BusinessVectorizerFixed:
     """Versão corrigida que processa TODOS os documentos"""
 
@@ -67,8 +70,16 @@ class BusinessVectorizerFixed:
     def connect_elasticsearch(self) -> bool:
         """Conecta ao Elasticsearch Cloud"""
         try:
-            if not all([ELASTICSEARCH_CONFIG['cloud_id'], ELASTICSEARCH_CONFIG['api_id'], ELASTICSEARCH_CONFIG['api_key']]):
-                logger.error("Variáveis do Elasticsearch Cloud não configuradas")
+            if not all(
+                [
+                    ELASTICSEARCH_CONFIG['cloud_id'],
+                    ELASTICSEARCH_CONFIG['api_id'],
+                    ELASTICSEARCH_CONFIG['api_key']
+                ]
+            ):
+                logger.error(
+                    "Variáveis do Elasticsearch Cloud não configuradas"
+                )
                 return False
 
             es_config = {
@@ -85,7 +96,9 @@ class BusinessVectorizerFixed:
             self.es_client = Elasticsearch(**es_config)
 
             if self.es_client.ping():
-                logger.info("Conexão com Elasticsearch Cloud estabelecida com sucesso")
+                logger.info(
+                    "Conexão com Elasticsearch Cloud estabelecida com sucesso"
+                )
                 return True
             else:
                 logger.error("Falha no ping do Elasticsearch Cloud")
@@ -99,8 +112,10 @@ class BusinessVectorizerFixed:
         """Limpa e normaliza texto removendo caracteres especiais avulsos"""
         if not text:
             return ""
-        
-        text = text.replace('\ufeff', '').replace('\u200b', '').replace('\u00a0', ' ')
+
+        text = text.replace(
+            '\ufeff', ''
+        ).replace('\u200b', '').replace('\u00a0', ' ')
         text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', text)
         text = re.sub(r'[\r\n]+', ' ', text)
         text = re.sub(r'\s+', ' ', text)
@@ -108,11 +123,11 @@ class BusinessVectorizerFixed:
         text = re.sub(r'[^\w\s]{3,}', ' ', text)
         text = re.sub(r'[-/]{3,}', ' ', text)
         text = text.strip()
-        
+
         return text
 
     def extract_text_from_document(self, doc_source: Dict[str, Any]) -> str:
-        """Extrai texto relevante de um documento ElasticSearch - TODOS os campos de texto"""
+        """Extrai texto relevante de um documento ElasticSearch"""
         extracted_texts = []
 
         def extract_recursive(obj, prefix=''):
@@ -168,63 +183,77 @@ class BusinessVectorizerFixed:
     def process_all_documents_in_index(self, index: str) -> int:
         """Processa TODOS os documentos de um índice usando scroll"""
         logger.info(f"Iniciando processamento completo do índice: {index}")
-        
+
         processed = 0
-        
+
         try:
             # Busca inicial com scroll
-            response = self.es_client.search(
+            response = self.es_client.search(  # type: ignore
                 index=index,
                 query={"match_all": {}},
                 size=100,  # Batch size
                 scroll='10m',  # Timeout maior
                 sort=[{"_score": {"order": "desc"}}]
             )
-            
+
             scroll_id = response.get('_scroll_id')
             total_hits = response['hits']['total']['value']
-            
+
             logger.info(f"Total de documentos no índice {index}: {total_hits}")
-            
+
             # Processa primeira página
             for hit in response['hits']['hits']:
                 if self.process_single_document(hit, index):
                     processed += 1
-                    
+
                 # Log progresso a cada 50 documentos
                 if processed % 50 == 0:
-                    logger.info(f"Progresso {index}: {processed} documentos processados")
-            
+                    logger.info(
+                        f"""Progresso {
+                            index
+                        }: {processed} documentos processados"""
+                    )
+
             # Continua com scroll
             while scroll_id and len(response['hits']['hits']) > 0:
                 try:
-                    response = self.es_client.scroll(
+                    response = self.es_client.scroll(  # type: ignore
                         scroll_id=scroll_id,
                         scroll='10m'
                     )
-                    
+
                     for hit in response['hits']['hits']:
                         if self.process_single_document(hit, index):
                             processed += 1
-                            
+
                         # Log progresso a cada 50 documentos
                         if processed % 50 == 0:
-                            logger.info(f"Progresso {index}: {processed} documentos processados")
-                    
+                            logger.info(
+                                f"""Progresso {
+                                    index
+                                }: {processed} documentos processados"""
+                            )
+
                 except Exception as e:
                     logger.error(f"Erro no scroll para {index}: {e}")
                     break
-            
+
             # Limpa scroll
             if scroll_id:
                 try:
-                    self.es_client.clear_scroll(scroll_id=scroll_id)
-                except:
+                    self.es_client.clear_scroll(  # type: ignore
+                        scroll_id=scroll_id
+                    )
+                except Exception:
                     pass
-                    
-            logger.info(f"Concluído processamento do índice {index}: {processed} documentos processados")
+
+            logger.info(
+                f"""Concluído processamento do índice {
+                    index
+                }: {processed} documentos processados"""
+            )
             return processed
-            
+
         except Exception as e:
             logger.error(f"Erro ao processar índice {index}: {e}")
             return processed
@@ -234,12 +263,14 @@ class BusinessVectorizerFixed:
         try:
             doc_id = hit['_id']
             doc_source = hit['_source']
-            
+
             # Extrai texto do documento
             text_content = self.extract_text_from_document(doc_source)
 
             if not text_content.strip():
-                logger.warning(f"Documento {doc_id} sem conteúdo textual - pulando")
+                logger.warning(
+                    f"Documento {doc_id} sem conteúdo textual - pulando"
+                )
                 return False
 
             # Gera embedding
@@ -274,7 +305,7 @@ class BusinessVectorizerFixed:
             )
 
             self.processed_count += 1
-            
+
             # Log apenas os primeiros 10 de cada índice para não spam
             if self.processed_count <= 10:
                 logger.info(f"Embedding salvo: {embedding.id} - {title}")
@@ -282,46 +313,68 @@ class BusinessVectorizerFixed:
             return True
 
         except Exception as e:
-            logger.error(f"Erro ao processar documento {hit.get('_id', 'N/A')}: {e}")
+            logger.error(
+                f"""Erro ao processar documento {
+                    hit.get('_id', 'N/A')
+                }: {e}"""
+            )
             self.error_count += 1
             return False
 
     def run(self):
         """Executa o processo completo de vetorização"""
-        logger.info("🚀 Iniciando Business Vectorizer CORRIGIDO - Processamento completo sem deduplicação")
+        logger.info(
+            "🚀 Iniciando Business Vectorizer"
+        )
 
         try:
             # Conecta ao Elasticsearch Cloud
             if not self.connect_elasticsearch():
-                logger.error("Falha na conexão com Elasticsearch Cloud. Encerrando...")
+                logger.error(
+                    "Falha na conexão com Elasticsearch Cloud. " +
+                    "Encerrando..."
+                )
                 return
 
             # Processa cada índice
             indices = ['braincomercial', 'consultores', 'unibrain']
-            
+
             for index in indices:
                 logger.info(f"\n{'='*50}")
                 logger.info(f"📊 PROCESSANDO ÍNDICE: {index}")
                 logger.info(f"{'='*50}")
-                
+
                 processed = self.process_all_documents_in_index(index)
-                logger.info(f"✅ CONCLUÍDO {index}: {processed} documentos processados")
+                logger.info(
+                    f"""✅ CONCLUÍDO {
+                        index
+                    }: {processed} documentos processados"""
+                )
 
             # Estatísticas finais
             logger.info(f"\n{'='*50}")
             logger.info("🎉 Business Vectorizer CONCLUÍDO!")
             logger.info(f"📈 Total processado: {self.processed_count}")
             logger.info(f"❌ Total de erros: {self.error_count}")
-            logger.info(f"✅ Taxa de sucesso: {(self.processed_count / (self.processed_count + self.error_count) * 100):.1f}%" if (self.processed_count + self.error_count) > 0 else "N/A")
+            logger.info(
+                f"""✅ Taxa de sucesso: {
+                    (self.processed_count / (
+                        self.processed_count + self.error_count
+                    ) * 100):.1f}%""" if (
+                        self.processed_count + self.error_count
+                    ) > 0 else "N/A"
+                )
             logger.info(f"{'='*50}")
 
         except Exception as e:
             logger.error(f"Erro durante execução: {e}")
 
+
 def main():
     """Função principal"""
     vectorizer = BusinessVectorizerFixed()
     vectorizer.run()
+
 
 if __name__ == "__main__":
     main()

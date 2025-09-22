@@ -7,7 +7,7 @@ baseado no campo content
 import os
 import sys
 import logging
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any
 from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
@@ -21,8 +21,8 @@ sys.path.insert(0, project_root)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 django.setup()
 
+# Django imports after setup
 from embeddings.models import Embedding
-from django.db.models import Q
 
 # Configuração de logging
 logging.basicConfig(
@@ -47,14 +47,21 @@ class DuplicateRemover:
     def get_webscraping_embeddings(self) -> List[Embedding]:
         """Obtém todos os embeddings de origem webscraping"""
         try:
-            embeddings = Embedding.objects.filter(origin='webscraping').order_by('created_at')
-            logger.info(f"Encontrados {embeddings.count()} embeddings de webscraping")
+            embeddings = Embedding.objects.filter(
+                origin='webscraping'
+            ).order_by('created_at')
+            logger.info(
+                f"Encontrados {embeddings.count()} embeddings de "
+                f"webscraping"
+            )
             return list(embeddings)
         except Exception as e:
             logger.error(f"Erro ao consultar embeddings: {e}")
             return []
 
-    def group_by_content(self, embeddings: List[Embedding]) -> Dict[str, List[Embedding]]:
+    def group_by_content(
+            self, embeddings: List[Embedding]
+    ) -> Dict[str, List[Embedding]]:
         """Agrupa embeddings pelo conteúdo"""
         content_groups = defaultdict(list)
 
@@ -62,10 +69,15 @@ class DuplicateRemover:
             content_key = embedding.content.strip()
             content_groups[content_key].append(embedding)
 
-        logger.info(f"Agrupados em {len(content_groups)} grupos de conteúdo único")
+        logger.info(
+            f"Agrupados em {len(content_groups)} grupos de conteúdo "
+            f"único"
+        )
         return content_groups
 
-    def find_duplicates(self, embeddings: List[Embedding]) -> Dict[str, List[Embedding]]:
+    def find_duplicates(
+            self, embeddings: List[Embedding]
+    ) -> Dict[str, List[Embedding]]:
         """Identifica grupos de embeddings com conteúdo duplicado"""
         content_groups = self.group_by_content(embeddings)
 
@@ -77,13 +89,17 @@ class DuplicateRemover:
         logger.info(f"Encontrados {len(duplicates)} grupos com duplicatas")
         return duplicates
 
-    def select_embedding_to_keep(self, duplicates: List[Embedding]) -> Embedding:
+    def select_embedding_to_keep(
+            self, duplicates: List[Embedding]
+    ) -> Embedding:
         """Seleciona qual embedding manter entre as duplicatas"""
         # Ordena por data de criação (mantém o mais antigo)
         sorted_embeddings = sorted(duplicates, key=lambda x: x.created_at)
         return sorted_embeddings[0]
 
-    def remove_duplicates_dry_run(self, embeddings: List[Embedding]) -> Dict[str, Any]:
+    def remove_duplicates_dry_run(
+            self, embeddings: List[Embedding]
+    ) -> Dict[str, Any]:
         """Executa uma simulação da remoção de duplicatas"""
         duplicates = self.find_duplicates(embeddings)
 
@@ -97,12 +113,17 @@ class DuplicateRemover:
 
         for content, duplicate_group in duplicates.items():
             to_keep = self.select_embedding_to_keep(duplicate_group)
-            to_remove = [emb for emb in duplicate_group if emb.id != to_keep.id]
+            to_remove = [
+                emb for emb in duplicate_group if emb.id != to_keep.id
+            ]
 
             stats['embeddings_to_remove'] += len(to_remove)
 
             group_info = {
-                'content_preview': content[:100] + '...' if len(content) > 100 else content,
+                'content_preview': (
+                    content[:100] + '...' if len(content) > 100
+                    else content
+                ),
                 'total_duplicates': len(duplicate_group),
                 'to_keep': {
                     'id': str(to_keep.id),
@@ -122,10 +143,14 @@ class DuplicateRemover:
 
         return stats
 
-    def remove_duplicates(self, embeddings: List[Embedding], confirm: bool = False) -> Dict[str, Any]:
+    def remove_duplicates(
+            self, embeddings: List[Embedding], confirm: bool = False
+    ) -> Dict[str, Any]:
         """Remove embeddings duplicados"""
         if not confirm:
-            logger.warning("Executando dry run - nenhuma exclusão será realizada")
+            logger.warning(
+                "Executando dry run - nenhuma exclusão será realizada"
+            )
             return self.remove_duplicates_dry_run(embeddings)
 
         duplicates = self.find_duplicates(embeddings)
@@ -134,7 +159,9 @@ class DuplicateRemover:
 
         for content, duplicate_group in duplicates.items():
             to_keep = self.select_embedding_to_keep(duplicate_group)
-            to_remove = [emb for emb in duplicate_group if emb.id != to_keep.id]
+            to_remove = [
+                emb for emb in duplicate_group if emb.id != to_keep.id
+            ]
 
             kept_ids.append(str(to_keep.id))
 
@@ -145,9 +172,13 @@ class DuplicateRemover:
                     embedding.delete()
                     removed_ids.append(embedding_id)
                     self.duplicates_removed += 1
-                    logger.info(f"Removido embedding duplicado: {embedding_id}")
+                    logger.info(
+                        f"Removido embedding duplicado: {embedding_id}"
+                    )
                 except Exception as e:
-                    logger.error(f"Erro ao remover embedding {embedding.id}: {e}")
+                    logger.error(
+                        f"Erro ao remover embedding {embedding.id}: {e}"
+                    )
 
         stats = {
             'total_embeddings': len(embeddings),
@@ -158,7 +189,9 @@ class DuplicateRemover:
             'kept_ids': kept_ids
         }
 
-        logger.info(f"Remoção concluída: {len(removed_ids)} embeddings removidos")
+        logger.info(
+            f"Remoção concluída: {len(removed_ids)} embeddings removidos"
+        )
         return stats
 
     def generate_report(self, stats: Dict[str, Any]) -> str:
@@ -168,27 +201,51 @@ class DuplicateRemover:
         report.append("RELATÓRIO DE REMOÇÃO DE DUPLICATAS")
         report.append("=" * 60)
         report.append(f"Data/Hora: {datetime.now().isoformat()}")
-        report.append(f"Total de embeddings analisados: {stats['total_embeddings']}")
-        report.append(f"Grupos com duplicatas encontrados: {stats['duplicate_groups']}")
+        report.append(
+            f"Total de embeddings analisados: {stats['total_embeddings']}"
+        )
+        report.append(
+            f"Grupos com duplicatas encontrados: {stats['duplicate_groups']}"
+        )
 
         if 'embeddings_removed' in stats:
-            report.append(f"Embeddings removidos: {stats['embeddings_removed']}")
-            report.append(f"Embeddings mantidos: {stats['embeddings_kept']}")
+            report.append(
+                f"Embeddings removidos: {stats['embeddings_removed']}"
+            )
+            report.append(
+                f"Embeddings mantidos: {stats['embeddings_kept']}"
+            )
         else:
-            report.append(f"Embeddings que seriam removidos: {stats['embeddings_to_remove']}")
-            report.append(f"Embeddings que seriam mantidos: {stats['embeddings_to_keep']}")
+            report.append(
+                f"Embeddings que seriam removidos: "
+                f"{stats['embeddings_to_remove']}"
+            )
+            report.append(
+                f"Embeddings que seriam mantidos: "
+                f"{stats['embeddings_to_keep']}"
+            )
 
         if stats.get('details'):
             report.append("\n" + "=" * 40)
             report.append("DETALHES DOS GRUPOS DUPLICADOS")
             report.append("=" * 40)
 
-            for i, detail in enumerate(stats['details'][:10]):  # Limita a 10 grupos no relatório
-                report.append(f"\nGrupo {i+1}:")
-                report.append(f"  Conteúdo: {detail['content_preview']}")
-                report.append(f"  Total de duplicatas: {detail['total_duplicates']}")
-                report.append(f"  Mantido: {detail['to_keep']['title']} ({detail['to_keep']['id']})")
-                report.append(f"  Removidos: {len(detail['to_remove'])} embeddings")
+            # Limita a 10 grupos no relatório
+            for i, detail in enumerate(stats['details'][:10]):
+                report.append(f"\nGrupo {i + 1}:")
+                report.append(
+                    f"  Conteúdo: {detail['content_preview']}"
+                )
+                report.append(
+                    f"  Total de duplicatas: {detail['total_duplicates']}"
+                )
+                report.append(
+                    f"  Mantido: {detail['to_keep']['title']} "
+                    f"({detail['to_keep']['id']})"
+                )
+                report.append(
+                    f"  Removidos: {len(detail['to_remove'])} embeddings"
+                )
 
         report.append("\n" + "=" * 60)
         return "\n".join(report)
@@ -229,10 +286,18 @@ class DuplicateRemover:
 
             # Exibe resumo
             if confirm_removal:
-                logger.info(f"Processo concluído: {stats['embeddings_removed']} duplicatas removidas")
+                logger.info(
+                    f"Processo concluído: {stats['embeddings_removed']} "
+                    f"duplicatas removidas"
+                )
             else:
-                logger.info(f"Dry run concluído: {stats['embeddings_to_remove']} duplicatas seriam removidas")
-                logger.info("Execute com --confirm para realizar a remoção")
+                logger.info(
+                    f"Dry run concluído: {stats['embeddings_to_remove']} "
+                    f"duplicatas seriam removidas"
+                )
+                logger.info(
+                    "Execute com --confirm para realizar a remoção"
+                )
 
         except Exception as e:
             logger.error(f"Erro durante execução: {e}")
@@ -242,11 +307,17 @@ def main():
     """Função principal"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Remove embeddings duplicados de webscraping')
-    parser.add_argument('--confirm', action='store_true',
-                       help='Confirma a remoção (sem este flag, executa apenas dry run)')
-    parser.add_argument('--verbose', action='store_true',
-                       help='Ativa logs verbosos')
+    parser = argparse.ArgumentParser(
+        description='Remove embeddings duplicados de webscraping'
+    )
+    parser.add_argument(
+        '--confirm', action='store_true',
+        help='Confirma a remoção (sem este flag, executa apenas dry run)'
+    )
+    parser.add_argument(
+        '--verbose', action='store_true',
+        help='Ativa logs verbosos'
+    )
 
     args = parser.parse_args()
 
@@ -258,7 +329,9 @@ def main():
     # Para execução via crontab, sempre confirma a remoção automaticamente
     # Se não há argumentos (execução direta), assume confirmação
     if len(sys.argv) == 1:
-        logger.info("🤖 Executando remoção automática de duplicatas via crontab")
+        logger.info(
+            "🤖 Executando remoção automática de duplicatas via crontab"
+        )
         remover.run(confirm_removal=True)
     else:
         remover.run(confirm_removal=args.confirm)

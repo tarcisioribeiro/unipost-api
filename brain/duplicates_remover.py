@@ -8,7 +8,6 @@ import os
 import sys
 import logging
 from pathlib import Path
-from collections import defaultdict
 import django
 
 # Configuração do Django
@@ -18,6 +17,7 @@ sys.path.insert(0, project_root)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 django.setup()
 
+# Django imports after setup
 from embeddings.models import Embedding
 from django.db.models import Count
 
@@ -34,15 +34,19 @@ logger = logging.getLogger(__name__)
 
 
 class DuplicatesRemover:
-    """Remove duplicatas dos embeddings da fonte business_brain com base no título"""
+    """Remove duplicatas dos embeddings da fonte
+    business_brain com base no título"""
 
     def __init__(self):
         self.removed_count = 0
         self.kept_count = 0
 
     def find_duplicates(self):
-        """Encontra grupos de embeddings duplicados por título na origem business_brain"""
-        logger.info("🔍 Buscando duplicatas em embeddings da origem 'business_brain'...")
+        """Encontra grupos de embeddings duplicados,
+        por título na origem business_brain"""
+        logger.info(
+            "🔍 Buscando duplicatas em embeddings da origem 'business_brain'..."
+        )
 
         # Busca embeddings com títulos duplicados na origem business_brain
         duplicates = (
@@ -56,16 +60,19 @@ class DuplicatesRemover:
             .order_by('-count')
         )
 
-        logger.info(f"📊 Encontrados {duplicates.count()} títulos com duplicatas")
+        logger.info(
+            f"📊 Encontrados {duplicates.count()} títulos com duplicatas"
+        )
 
         return duplicates
 
     def remove_duplicates_for_title(self, title: str):
-        """Remove duplicatas para um título específico, mantendo apenas o mais antigo"""
+        """Remove duplicatas para um título específico,
+        mantendo apenas o mais antigo"""
         embeddings = (
             Embedding.objects
             .filter(origin='business_brain', title=title)
-            .order_by('created_at')  # Ordena por criação (mais antigo primeiro)
+            .order_by('created_at')
         )
 
         count = embeddings.count()
@@ -74,26 +81,42 @@ class DuplicatesRemover:
 
         # Mantém o primeiro (mais antigo) e remove os outros
         first_embedding = embeddings.first()
-        duplicates_to_remove = embeddings.exclude(id=first_embedding.id)
+        duplicates_to_remove = embeddings.exclude(
+            id=first_embedding.id)  # type: ignore
 
         removed_ids = list(duplicates_to_remove.values_list('id', flat=True))
+        print(removed_ids)
         duplicates_count = duplicates_to_remove.count()
 
         # Remove as duplicatas
         duplicates_to_remove.delete()
 
-        logger.info(f"✅ Título: '{title}' - Mantido: {first_embedding.id} | Removidos: {duplicates_count} duplicatas")
+        logger.info(
+            f"""✅ Título: '{
+                title
+            }' - Mantido: {
+                first_embedding.id}"""  # type: ignore
+            f" | Removidos: {duplicates_count} duplicatas"
+            )
 
         return duplicates_count
 
     def run(self):
         """Executa o processo completo de remoção de duplicatas"""
-        logger.info("🚀 Iniciando remoção de duplicatas dos embeddings 'business_brain'")
+        logger.info(
+            "🚀 Iniciando remoção de duplicatas dos embeddings 'business_brain'"
+        )
 
         try:
             # Estatísticas iniciais
-            total_business_brain = Embedding.objects.filter(origin='business_brain').count()
-            logger.info(f"📈 Total de embeddings 'business_brain' antes: {total_business_brain}")
+            total_business_brain = Embedding.objects.filter(
+                origin='business_brain'
+            ).count()
+            logger.info(
+                f"""📈 Total de embeddings 'business_brain' antes: {
+                    total_business_brain
+                }"""
+            )
 
             # Encontra duplicatas
             duplicates = self.find_duplicates()
@@ -109,22 +132,34 @@ class DuplicatesRemover:
                 title = duplicate['title']
                 duplicate_count = duplicate['count']
 
-                logger.info(f"🔄 Processando título: '{title}' ({duplicate_count} duplicatas)")
+                logger.info(
+                    f"""🔄 Processando título: '{
+                        title
+                    }' ({duplicate_count} duplicatas)"""
+                )
 
                 removed = self.remove_duplicates_for_title(title)
                 total_removed += removed
                 self.kept_count += 1  # Cada título mantém 1 embedding
 
             # Estatísticas finais
-            total_after = Embedding.objects.filter(origin='business_brain').count()
+            total_after = Embedding.objects.filter(
+                origin='business_brain'
+            ).count()
 
             logger.info(f"\n{'='*60}")
             logger.info("🎉 REMOÇÃO DE DUPLICATAS CONCLUÍDA!")
-            logger.info(f"📊 Embeddings 'business_brain' antes: {total_business_brain}")
+            logger.info(
+                f"""📊 Embeddings 'business_brain' antes: {
+                    total_business_brain
+                }"""
+            )
             logger.info(f"📊 Embeddings 'business_brain' depois: {total_after}")
             logger.info(f"🗑️  Total removido: {total_removed}")
             logger.info(f"✅ Total mantido: {total_after}")
-            logger.info(f"💾 Espaço liberado: {total_removed} embeddings duplicados")
+            logger.info(
+                f"💾 Espaço liberado: {total_removed} embeddings duplicados"
+            )
             logger.info(f"{'='*60}")
 
         except Exception as e:
@@ -132,7 +167,8 @@ class DuplicatesRemover:
             raise
 
     def preview_duplicates(self):
-        """Mostra uma prévia das duplicatas que seriam removidas sem removê-las"""
+        """Mostra uma prévia das duplicatas,
+        que seriam removidas sem removê-las"""
         logger.info("👀 MODO PREVIEW - Apenas visualizando duplicatas...")
 
         duplicates = self.find_duplicates()
@@ -156,20 +192,36 @@ class DuplicatesRemover:
             to_remove = count - 1
             total_to_remove += to_remove
 
-            logger.info(f"📋 '{title}': {count} total | Manter: {first.created_at} | Remover: {to_remove}")
+            logger.info(
+                f"""📋 '{
+                    title
+                }': {
+                    count
+                } total | Manter: {
+                    first.created_at} | Remover: {to_remove}"""  # type: ignore
+                )
 
-        logger.info(f"\n📊 RESUMO PREVIEW:")
-        logger.info(f"🗑️  Seriam removidos: {total_to_remove} embeddings duplicados")
-        logger.info(f"✅ Seriam mantidos: {duplicates.count()} embeddings únicos")
+        logger.info("\n📊 RESUMO PREVIEW:")
+        logger.info(
+            f"🗑️  Seriam removidos: {total_to_remove} embeddings duplicados"
+        )
+        logger.info(
+            f"✅ Seriam mantidos: {duplicates.count()} embeddings únicos"
+        )
 
 
 def main():
     """Função principal com opção de preview"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Remove duplicatas de embeddings business_brain')
-    parser.add_argument('--preview', action='store_true',
-                       help='Apenas mostra o que seria removido, sem executar')
+    parser = argparse.ArgumentParser(
+        description='Remove duplicatas de embeddings business_brain'
+    )
+    parser.add_argument(
+        '--preview',
+        action='store_true',
+        help='Apenas mostra o que seria removido, sem executar'
+    )
 
     args = parser.parse_args()
 
@@ -179,7 +231,10 @@ def main():
         remover.preview_duplicates()
     else:
         # Execução automática para crontab - sem confirmação interativa
-        logger.info("🤖 Executando remoção automática de duplicatas via crontab")
+        logger.info(
+            "🤖 Executando remoção automática" +
+            " de duplicatas via crontab"
+        )
         remover.run()
 
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 WebScraper usando MCP SDK Python
-Consulta sites de referência através da API do projeto e realiza scraping automatizado
+Consulta sites de referência através da API do projeto e realiza scraping
+automatizado
 """
 
 import os
@@ -26,6 +27,7 @@ sys.path.insert(0, project_root)
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 django.setup()
 
+# Django imports after setup
 from sites.models import Site
 
 
@@ -56,7 +58,7 @@ class WebScraper:
         self.visited_urls: Set[str] = set()
         self.url_queue = deque()
         self.domain_urls: Dict[str, Set[str]] = {}
-        
+
     async def authenticate_api(self) -> bool:
         """Autentica na API do projeto para obter token JWT"""
         try:
@@ -65,41 +67,40 @@ class WebScraper:
                     "username": API_USERNAME,
                     "password": API_PASSWORD
                 }
-                
                 response = await client.post(
                     f"{API_BASE_URL}/auth/login/",
                     json=auth_data
                 )
-                
                 if response.status_code == 200:
                     token_data = response.json()
                     self.api_token = token_data.get('access')
                     logger.info("Autenticação na API realizada com sucesso")
                     return True
                 else:
-                    logger.error(f"Falha na autenticação: {response.status_code}")
+                    logger.error(
+                        f"Falha na autenticação: {response.status_code}")
                     return False
-                    
         except Exception as e:
             logger.error(f"Erro ao autenticar na API: {e}")
             return False
-    
+
     def get_sites_from_database_sync(self) -> List[Dict[str, Any]]:
-        """Obtém lista de sites diretamente do banco de dados (versão síncrona)"""
+        """Obtém lista de sites diretamente do banco de dados
+        (versão síncrona)"""
         try:
             from django.db import transaction
-            
+
             with transaction.atomic():
                 sites = Site.objects.all()
                 sites_data = []
-                
                 for site in sites:
                     sites_data.append({
                         'id': site.id,
                         'name': site.name,
                         'url': site.url,
                         'category': site.category,
-                        'enable_recursive_crawling': site.enable_recursive_crawling,
+                        'enable_recursive_crawling': (
+                            site.enable_recursive_crawling),
                         'max_depth': site.max_depth,
                         'max_pages': site.max_pages,
                         'allow_patterns': site.allow_patterns,
@@ -108,38 +109,38 @@ class WebScraper:
                         'created_at': site.created_at.isoformat(),
                         'updated_at': site.updated_at.isoformat()
                     })
-                
-                logger.info(f"Obtidos {len(sites_data)} sites do banco de dados")
+                logger.info(
+                    f"Obtidos {len(sites_data)} sites do banco de dados")
                 return sites_data
-                        
         except Exception as e:
             logger.error(f"Erro ao consultar sites: {e}")
             return []
-    
+
     async def get_sites_from_database(self) -> List[Dict[str, Any]]:
         """Wrapper assíncrono para consulta de sites"""
         try:
-            from django.db import connection
             from asgiref.sync import sync_to_async
 
             # Usa sync_to_async para executar a consulta Django
-            sites_data = await sync_to_async(self.get_sites_from_database_sync, thread_sensitive=True)()
+            sites_data = await sync_to_async(
+                self.get_sites_from_database_sync, thread_sensitive=True)()
             return sites_data
         except Exception as e:
             logger.error(f"Erro ao consultar sites: {e}")
             return []
-    
+
     async def init_web_client(self):
         """Inicializa cliente web simples"""
         try:
             self.web_client = httpx.AsyncClient(
                 timeout=30.0,
                 headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    'User-Agent': (
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                        'AppleWebKit/537.36')
                 }
             )
             logger.info("Cliente web inicializado com sucesso")
-            
         except Exception as e:
             logger.error(f"Erro ao inicializar cliente web: {e}")
             raise
@@ -168,7 +169,8 @@ class WebScraper:
         domain2 = urlparse(url2).netloc.lower()
         return domain1 == domain2
 
-    def should_crawl_url(self, url: str, site_config: Dict[str, Any], base_url: str) -> bool:
+    def should_crawl_url(self, url: str, site_config: Dict[str, Any],
+                         base_url: str) -> bool:
         """Verifica se uma URL deve ser incluída no crawling"""
         # Só crawl URLs do mesmo domínio
         if not self.is_same_domain(url, base_url):
@@ -237,7 +239,8 @@ class WebScraper:
         return ' '.join(content_parts)
 
     def is_content_relevant(self, soup, url: str) -> bool:
-        """Verifica se a página contém conteúdo relevante (artigos, posts, etc.)"""
+        """Verifica se a página contém conteúdo relevante (artigos,
+        posts, etc.)"""
         # Indicadores de conteúdo relevante
         content_indicators = [
             'article', 'post', 'blog', 'news', 'content',
@@ -258,8 +261,10 @@ class WebScraper:
                 return True
 
         return False
-    
-    async def scrape_page_content(self, url: str, site_name: str, site_config: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def scrape_page_content(self, url: str, site_name: str,
+                                  site_config: Dict[str, Any]
+                                  ) -> Dict[str, Any]:
         """Realiza scraping de uma página individual"""
         try:
             if not hasattr(self, 'web_client'):
@@ -278,33 +283,46 @@ class WebScraper:
                 from bs4 import BeautifulSoup
                 soup = BeautifulSoup(response.content, 'html.parser')
 
-                # Remove scripts e styles
-                for script in soup(["script", "style"]):
-                    script.decompose()
-
                 # Extrai título
                 title = soup.find('title')
                 title_text = title.get_text().strip() if title else ""
 
+                # Extrai links ANTES de remover scripts (importante!)
+                links = self.extract_links(soup, url)
+
+                # Remove scripts e styles para extrair conteúdo limpo
+                for script in soup(["script", "style"]):
+                    script.decompose()
+
                 # Extrai conteúdo usando seletores customizados se disponível
                 content_selectors = site_config.get('content_selectors', '')
+                content_text = ""
+
                 if content_selectors:
-                    content_text = self.extract_content_with_selectors(soup, content_selectors)
-                else:
+                    content_text = self.extract_content_with_selectors(
+                        soup, content_selectors)
+
+                # Se não conseguiu extrair com seletores customizados, tenta padrão
+                if not content_text or len(content_text.strip()) < 100:
                     # Extração padrão - procura por artigos, então parágrafos
-                    content_elements = soup.select('article, .content, .post-content, .entry-content')
+                    content_elements = soup.select(
+                        'article, .article-content, .main-content, .post-content, .entry-content')
                     if content_elements:
-                        content_text = ' '.join([elem.get_text().strip() for elem in content_elements])
+                        content_text = ' '.join([
+                            elem.get_text().strip()
+                            for elem in content_elements])
                     else:
                         paragraphs = soup.find_all('p')
-                        content_text = ' '.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+                        content_text = ' '.join([
+                            p.get_text().strip() for p in paragraphs
+                            if p.get_text().strip()])
+
+                # Limpa conteúdo removendo espaços extras
+                content_text = ' '.join(content_text.split())
 
                 # Limita o tamanho do conteúdo
                 if len(content_text) > 5000:
                     content_text = content_text[:5000] + "..."
-
-                # Extrai links para crawling recursivo
-                links = self.extract_links(soup, url)
 
                 return {
                     "site_name": site_name,
@@ -321,7 +339,9 @@ class WebScraper:
 
             except ImportError:
                 # Fallback sem BeautifulSoup
-                content_text = response.text[:5000] + "..." if len(response.text) > 5000 else response.text
+                content_text = (response.text[:5000] + "..."
+                                if len(response.text) > 5000
+                                else response.text)
                 return {
                     "site_name": site_name,
                     "url": url,
@@ -350,8 +370,9 @@ class WebScraper:
                 "status": "error",
                 "error": str(e)
             }
-    
-    async def crawl_site_recursive(self, site_config: Dict[str, Any]) -> List[Dict[str, Any]]:
+
+    async def crawl_site_recursive(self, site_config: Dict[str, Any]
+                                   ) -> List[Dict[str, Any]]:
         """Realiza crawling recursivo de um site"""
         site_name = site_config.get('name', 'N/A')
         base_url = site_config.get('url', '')
@@ -376,8 +397,13 @@ class WebScraper:
         self.url_queue.append((base_url, 0))  # (url, depth)
         scraped_pages = []
 
-        logger.info(f"Iniciando crawling {'recursivo' if enable_recursive else 'simples'} para: {site_name}")
-        logger.info(f"Configurações - Max depth: {max_depth}, Max pages: {max_pages}")
+        logger.info(
+            f"Iniciando crawling "
+            f"{'recursivo' if enable_recursive else 'simples'} "
+            f"para: {site_name}")
+        logger.info(
+            f"Configurações - Max depth: {max_depth}, "
+            f"Max pages: {max_pages}")
 
         pages_scraped = 0
 
@@ -392,30 +418,40 @@ class WebScraper:
             self.visited_urls.add(current_url)
 
             # Faz scraping da página atual
-            logger.info(f"Fazendo scraping de: {current_url} (profundidade: {depth})")
-            page_result = await self.scrape_page_content(current_url, site_name, site_config)
+            logger.info(
+                f"Fazendo scraping de: {current_url} "
+                f"(profundidade: {depth})")
+            page_result = await self.scrape_page_content(
+                current_url, site_name, site_config)
 
             if page_result['status'] == 'success':
                 scraped_pages.append(page_result)
                 pages_scraped += 1
 
                 # Se habilitado crawling recursivo e não atingiu max depth
-                if enable_recursive and depth < max_depth and page_result.get('links'):
+                if (enable_recursive and depth < max_depth and
+                        page_result.get('links')):
                     # Adiciona links encontrados na fila
                     for link in page_result['links']:
                         if (link not in self.visited_urls and
-                            self.should_crawl_url(link, site_config, base_url)):
+                                self.should_crawl_url(
+                                    link, site_config, base_url)):
                             self.url_queue.append((link, depth + 1))
 
-                logger.info(f"Página processada - Relevante: {page_result.get('is_relevant', False)}, "
-                           f"Links encontrados: {page_result.get('links_found', 0)}")
+                logger.info(
+                    f"Página processada - Relevante: "
+                    f"{page_result.get('is_relevant', False)}, "
+                    f"Links encontrados: "
+                    f"{page_result.get('links_found', 0)}")
             else:
                 logger.warning(f"Falha no scraping de: {current_url}")
 
             # Pausa entre requisições
             await asyncio.sleep(1)
 
-        logger.info(f"Crawling finalizado para {site_name}: {pages_scraped} páginas processadas")
+        logger.info(
+            f"Crawling finalizado para {site_name}: "
+            f"{pages_scraped} páginas processadas")
         return scraped_pages
 
     async def scrape_all_sites(self) -> List[Dict[str, Any]]:
@@ -437,64 +473,69 @@ class WebScraper:
                 await asyncio.sleep(3)
 
             except Exception as e:
-                logger.error(f"Erro no crawling do site {site.get('name', 'N/A')}: {e}")
+                logger.error(
+                    f"Erro no crawling do site "
+                    f"{site.get('name', 'N/A')}: {e}")
 
         return all_scraped_results
-    
-    async def save_results(self, results: List[Dict[str, Any]], output_file: str = None):
+
+    async def save_results(self, results: List[Dict[str, Any]],
+                           output_file: str = None):
         """Salva os resultados do scraping em arquivo JSON"""
         if not output_file:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_file = f"scraping_results_{timestamp}.json"
-        
+
         output_path = Path(__file__).parent / output_file
-        
+
         try:
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(results, f, indent=2, ensure_ascii=False)
-            
+
             logger.info(f"Resultados salvos em: {output_path}")
-            
+
             # Estatísticas
             total_pages = len(results)
-            successful = len([r for r in results if r.get('status') == 'success'])
+            successful = len(
+                [r for r in results if r.get('status') == 'success'])
             failed = total_pages - successful
-            relevant_pages = len([r for r in results if r.get('is_relevant', False)])
+            relevant_pages = len(
+                [r for r in results if r.get('is_relevant', False)])
             total_links = sum([r.get('links_found', 0) for r in results])
 
             logger.info(f"Resumo: {total_pages} páginas processadas")
             logger.info(f"Sucessos: {successful}, Falhas: {failed}")
             logger.info(f"Páginas relevantes: {relevant_pages}")
             logger.info(f"Total de links encontrados: {total_links}")
-            
+
         except Exception as e:
             logger.error(f"Erro ao salvar resultados: {e}")
-    
+
     async def run(self):
         """Executa o processo completo de scraping"""
         logger.info("Iniciando WebScraper...")
-        
+
         try:
             # Inicializa cliente web
             await self.init_web_client()
-            
+
             # Realiza scraping de todos os sites
             results = await self.scrape_all_sites()
-            
+
             # Salva resultados
             await self.save_results(results)
-            
+
             logger.info("WebScraper finalizado com sucesso!")
-            
+
         except Exception as e:
             logger.error(f"Erro durante execução: {e}")
-        
+
         finally:
             # Cleanup
             if hasattr(self, 'web_client'):
                 try:
                     await self.web_client.aclose()
-                except:
+                except Exception:
                     pass
 
 
