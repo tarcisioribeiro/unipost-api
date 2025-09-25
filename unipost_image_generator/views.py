@@ -9,7 +9,7 @@ import logging
 from .models import GeneratedImage
 from .serializers import (
     GeneratedImageSerializer,
-    ImageGenerationRequestSerializer
+    AIImageRequestSerializer
 )
 from .generator import UnipostImageGenerator, ImageGenerationTask
 
@@ -23,7 +23,7 @@ class GenerateImageView(APIView):
     def post(self, request):
         """Gera uma nova imagem a partir do texto fornecido"""
         try:
-            serializer = ImageGenerationRequestSerializer(data=request.data)
+            serializer = AIImageRequestSerializer(data=request.data)
             if not serializer.is_valid():
                 return Response(
                     {'error': 'Dados inválidos', 'details': serializer.errors},

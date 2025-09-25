@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/v1/', include('texts.urls')),
     path('api/v1/', include('sites.urls')),
     path('api/v1/', include('embeddings.urls')),
+    path('api/v1/', include('core.urls')),
     path('api/images/', include('unipost_image_generator.urls')),
 ]
 

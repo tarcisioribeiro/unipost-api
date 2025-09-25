@@ -38,7 +38,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": {{DB_USER}},\n    \"password\": {{DB_PASSWORD}}\n}"
+							"raw": "{\n    \"username\": \"{{DB_USER}}\",\n    \"password\": \"{{DB_PASSWORD}}\"\n}"
 						},
 						"url": {
 							"raw": "{{BASE_URL}}/api/v1/authentication/token/",
@@ -153,9 +153,9 @@
 							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/authentication/token/refresh/",
+							"raw": "{{BASE_URL}}/api/v1/authentication/token/refresh/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -263,9 +263,9 @@
 							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/authentication/logout/",
+							"raw": "{{BASE_URL}}/api/v1/authentication/logout/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -335,9 +335,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/user/permissions/",
+							"raw": "{{BASE_URL}}/api/v1/user/permissions/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -505,9 +505,9 @@
 							"raw": "{\n    \"theme\": \"Vendas Online\",\n    \"platform\": \"INT\",\n    \"content\": \"Post sobre vendas online para Instagram com dicas práticas e exemplos reais.\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/texts/",
+							"raw": "{{BASE_URL}}/api/v1/texts/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -719,9 +719,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/texts/1/",
+							"raw": "{{BASE_URL}}/api/v1/texts/1/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -745,9 +745,9 @@
 									}
 								],
 								"url": {
-									"raw": "{{base_url}}/api/v1/texts/1/",
+									"raw": "{{BASE_URL}}/api/v1/texts/1/",
 									"host": [
-										"{{base_url}}"
+										"{{BASE_URL}}"
 									],
 									"path": [
 										"api",
@@ -1036,9 +1036,9 @@
 							"raw": "{\n    \"name\": \"E-commerce Tech\",\n    \"url\": \"https://loja-tech.com.br\",\n    \"category\": \"ECOMMERCE\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/sites/",
+							"raw": "{{BASE_URL}}/api/v1/sites/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1300,6 +1300,276 @@
 				}
 			],
 			"description": "Endpoints para gerenciamento de sites. Categorias disponíveis: BLOG, ECOMMERCE, PORTFOLIO, NOTICIAS, EMPRESA, EDUCACAO, OUTROS"
+		},
+		{
+			"name": "Geração de Imagens",
+			"item": [
+				{
+					"name": "Gerar nova imagem",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Marketing digital para redes sociais com foco em vendas online\",\n    \"embedding_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"custom_prompt\": \"Crie uma imagem profissional e moderna para marketing digital\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/images/generate/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"images",
+								"generate",
+								""
+							]
+						},
+						"description": "Gera uma nova imagem usando IA baseada no texto fornecido e opcionalmente um prompt customizado."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\": \"Marketing digital para redes sociais\",\n    \"embedding_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"custom_prompt\": \"Imagem profissional\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/images/generate/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"images",
+										"generate",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Imagem gerada com sucesso\",\n    \"image_path\": \"/media/generated_images/image_20240115_142500.png\",\n    \"metadata\": {\n        \"model_used\": \"dall-e-3\",\n        \"size\": \"1024x1024\",\n        \"style\": \"vivid\",\n        \"quality\": \"hd\"\n    }\n}"
+						},
+						{
+							"name": "Error Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"text\": \"\",\n    \"embedding_id\": \"invalid-id\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/images/generate/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"images",
+										"generate",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Dados inválidos\",\n    \"details\": {\n        \"text\": [\"Este campo é obrigatório.\"],\n        \"embedding_id\": [\"UUID inválido.\"]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Consultar status da imagem",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/images/status/123e4567-e89b-12d3-a456-426614174000/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"images",
+								"status",
+								"123e4567-e89b-12d3-a456-426614174000",
+								""
+							]
+						},
+						"description": "Consulta o status e informações de uma imagem gerada pelo ID."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/api/images/status/123e4567-e89b-12d3-a456-426614174000/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"images",
+										"status",
+										"123e4567-e89b-12d3-a456-426614174000",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"embedding\": \"456e7890-e89b-12d3-a456-426614174001\",\n    \"original_text\": \"Marketing digital para redes sociais com foco em vendas online\",\n    \"generated_prompt\": \"Crie uma imagem profissional e moderna para marketing digital\",\n    \"image_path\": \"/media/generated_images/image_20240115_142500.png\",\n    \"dalle_response\": {\n        \"revised_prompt\": \"A professional and modern marketing digital image\",\n        \"url\": \"https://oaidalleapiprodscus.blob.core.windows.net/...\",\n        \"width\": 1024,\n        \"height\": 1024\n    },\n    \"generation_metadata\": {\n        \"model\": \"dall-e-3\",\n        \"style\": \"vivid\",\n        \"quality\": \"hd\"\n    },\n    \"created_at\": \"2024-01-15T14:25:00Z\",\n    \"updated_at\": \"2024-01-15T14:25:00Z\",\n    \"file_status\": {\n        \"exists\": true,\n        \"path\": \"/media/generated_images/image_20240115_142500.png\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Listar imagens geradas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/images/list/?embedding_id={{EMBEDDING_ID}}&date_from=2024-01-01&date_to=2024-01-31",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"images",
+								"list",
+								""
+							],
+							"query": [
+								{
+									"key": "embedding_id",
+									"value": "{{EMBEDDING_ID}}",
+									"disabled": true
+								},
+								{
+									"key": "date_from",
+									"value": "2024-01-01",
+									"disabled": true
+								},
+								{
+									"key": "date_to",
+									"value": "2024-01-31",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Lista todas as imagens geradas com filtros opcionais por embedding, data de início e data fim."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/api/images/list/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"images",
+										"list",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"results\": [\n        {\n            \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n            \"embedding\": \"456e7890-e89b-12d3-a456-426614174001\",\n            \"original_text\": \"Marketing digital para redes sociais\",\n            \"generated_prompt\": \"Imagem profissional de marketing\",\n            \"image_path\": \"/media/generated_images/image_20240115_142500.png\",\n            \"created_at\": \"2024-01-15T14:25:00Z\"\n        }\n    ],\n    \"count\": 1,\n    \"stats\": {\n        \"total_images\": 150,\n        \"images_today\": 5\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints para geração e gerenciamento de imagens usando IA. Inclui geração de imagens, consulta de status e listagem com filtros."
 		},
 		{
 			"name": "Embeddings",
@@ -1573,9 +1843,9 @@
 							"raw": "{\n    \"origin\": \"webscraping\",\n    \"content\": \"Conteúdo atualizado e refinado\",\n    \"title\": \"Artigo sobre IA - Versão 2024\",\n    \"embedding_vector\": [0.2, 0.3, 0.4, 0.5],\n    \"metadata\": {\n        \"source_url\": \"https://exemplo.com/artigo-atualizado\",\n        \"date_scraped\": \"2024-01-15\",\n        \"version\": \"2.0\"\n    }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
+							"raw": "{{BASE_URL}}/api/v1/embeddings/123e4567-e89b-12d3-a456-426614174000/",
 							"host": [
-								"{{base_url}}"
+								"{{BASE_URL}}"
 							],
 							"path": [
 								"api",
@@ -1695,6 +1965,225 @@
 				}
 			],
 			"description": "Endpoints para gerenciamento de embeddings. Origens disponíveis: webscraping, generated, business_brain"
+		},
+		{
+			"name": "Análise e Métricas",
+			"item": [
+				{
+					"name": "Dashboard Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/dashboard/analytics/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"analytics",
+								""
+							]
+						},
+						"description": "Obtém métricas analíticas do dashboard do usuário, incluindo uso da API, métricas de conteúdo e atividade recente."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/api/v1/dashboard/analytics/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"dashboard",
+										"analytics",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Dashboard analytics retrieved successfully\",\n    \"data\": {\n        \"user_metrics\": {\n            \"api_usage_percentage\": 65.5,\n            \"api_calls_remaining\": 345,\n            \"plan_type\": \"premium\",\n            \"is_premium\": true\n        },\n        \"content_metrics\": {\n            \"total_campaigns\": 12,\n            \"active_campaigns\": 5,\n            \"total_content_created\": 89,\n            \"total_images_generated\": 23,\n            \"total_embeddings_created\": 156\n        },\n        \"recent_activity\": {\n            \"campaigns_this_week\": 2,\n            \"api_calls_this_week\": 87\n        },\n        \"last_updated\": \"2024-01-15T16:30:00Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "System Health (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/admin/system/health/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"system",
+								"health",
+								""
+							]
+						},
+						"description": "Verifica a saúde do sistema (disponível apenas para administradores). Inclui métricas de API, usuários, conteúdo e IA."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/api/v1/admin/system/health/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"system",
+										"health",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"System health retrieved successfully\",\n    \"data\": {\n        \"system_status\": \"healthy\",\n        \"api_health\": {\n            \"total_calls_today\": 1523,\n            \"success_rate\": 98.7,\n            \"avg_response_time\": 245\n        },\n        \"user_metrics\": {\n            \"active_users_today\": 89,\n            \"new_users_today\": 12,\n            \"premium_users\": 45\n        },\n        \"content_metrics\": {\n            \"total_content\": 5642,\n            \"published_content\": 4321,\n            \"total_campaigns\": 234\n        },\n        \"ai_metrics\": {\n            \"embeddings_created\": 1234,\n            \"images_generated\": 567,\n            \"processing_cost_today\": 45.67\n        },\n        \"last_updated\": \"2024-01-15T16:30:00Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Logs de Auditoria (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/admin/audit/logs/?suspicious_only=false&user_id={{USER_ID}}&status_code=200",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"audit",
+								"logs",
+								""
+							],
+							"query": [
+								{
+									"key": "suspicious_only",
+									"value": "false",
+									"disabled": true
+								},
+								{
+									"key": "user_id",
+									"value": "{{USER_ID}}",
+									"disabled": true
+								},
+								{
+									"key": "status_code",
+									"value": "200",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Obtém logs de auditoria da API (disponível apenas para administradores). Permite filtrar por usuário, atividades suspeitas e código de status."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{BASE_URL}}/api/v1/admin/audit/logs/",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"audit",
+										"logs",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Audit logs retrieved successfully\",\n    \"results\": [\n        {\n            \"id\": 12345,\n            \"user\": {\n                \"id\": 1,\n                \"username\": \"user@example.com\"\n            },\n            \"endpoint\": \"/api/v1/texts/\",\n            \"method\": \"POST\",\n            \"response_status\": 201,\n            \"response_time_ms\": 234,\n            \"user_agent\": \"PostmanRuntime/7.32.3\",\n            \"ip_address\": \"192.168.1.100\",\n            \"is_suspicious\": false,\n            \"timestamp\": \"2024-01-15T16:30:00Z\"\n        }\n    ],\n    \"count\": 1,\n    \"next\": null,\n    \"previous\": null\n}"
+						}
+					]
+				}
+			],
+			"description": "Endpoints para análise de métricas e monitoramento do sistema. Inclui analytics do usuário, saúde do sistema e logs de auditoria."
 		}
 	],
 	"event": [
